@@ -1,7 +1,6 @@
 import logging
 import os
-
-POSTGRES_DB = "llm"
+POSTGRES_DB = os.environ["POSTGRES_DB"]
 POSTGRES_USER = os.environ["POSTGRES_USER"]
 POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
 DB_HOST = os.environ["DB_HOST"]

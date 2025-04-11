@@ -1,12 +1,13 @@
 import psycopg2
 
-from llm_out_db import (
+from llm_setup import (
     DB_HOST,
     POSTGRES_DB,
     POSTGRES_PASSWORD,
     POSTGRES_USER,
     get_db_logger,
 )
+
 
 LOGGER = get_db_logger()
 

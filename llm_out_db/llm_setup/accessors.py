@@ -1,7 +1,7 @@
 from datetime import datetime
 import psycopg2
 
-from llm_out_db import get_db_logger
+from llm_setup import get_db_logger
 
 
 LOGGER = get_db_logger()
