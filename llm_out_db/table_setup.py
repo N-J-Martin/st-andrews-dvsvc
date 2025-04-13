@@ -4,7 +4,9 @@ from llm_setup import get_db_logger, connect
 
 def create_charity_table( conn: psycopg2.extensions.connection):
     with conn.cursor() as cursor:
-        cursor.execute("""CREATE TABLE charity(
+        cursor.execute("""
+        DROP TABLE IF EXISTS charity CASCADE;
+        CREATE TABLE charity(
         url VARCHAR(2048) PRIMARY KEY,
         name VARCHAR (50) NOT NULL,
         summary VARCHAR(2048)
@@ -18,10 +20,12 @@ def create_charity_table( conn: psycopg2.extensions.connection):
 def create_charityNum_table( conn: psycopg2.extensions.connection):
     # make constraint that government either eng or sco ?
     with conn.cursor() as cursor:
-        cursor.execute("""CREATE TABLE charityNum(
-        url VARCHAR(2048) FOREIGN KEY REFERENCES charity(url),
+        cursor.execute("""
+        DROP TABLE IF EXISTS charityNum CASCADE;
+        CREATE TABLE charityNum(
+        url VARCHAR(2048) REFERENCES charity(url),
         charity_number VARCHAR(8),
-        government varchar(3) NOT NULL
+        government varchar(3) NOT NULL,
         PRIMARY KEY (url, charity_number)
         );""")
 
@@ -32,9 +36,11 @@ def create_charityNum_table( conn: psycopg2.extensions.connection):
 def create_phoneNum_table( conn: psycopg2.extensions.connection):
     # add phone number constraints
     with conn.cursor() as cursor:
-        cursor.execute("""CREATE TABLE phoneNum(
-         url VARCHAR(2048) FOREIGN KEY REFERENCES charity(url),
-         phone_number VARCHAR(15)
+        cursor.execute("""
+        DROP TABLE IF EXISTS phoneNum CASCADE;
+        CREATE TABLE phoneNum(
+         url VARCHAR(2048) REFERENCES charity(url),
+         phone_number VARCHAR(15),
          PRIMARY KEY(url, phone_number)
         );""")
 
@@ -45,9 +51,11 @@ def create_phoneNum_table( conn: psycopg2.extensions.connection):
 def create_email_table( conn: psycopg2.extensions.connection):
     # add email constraints
     with conn.cursor() as cursor:
-        cursor.execute("""CREATE TABLE email(
-         url VARCHAR(2048) FOREIGN KEY REFERENCES charity(url),
-         email VARCHAR(30)
+        cursor.execute("""
+        DROP TABLE IF EXISTS email CASCADE;
+        CREATE TABLE email(
+         url VARCHAR(2048) REFERENCES charity(url),
+         email VARCHAR(30),
          PRIMARY KEY(url, email)
         );""")
 
@@ -58,8 +66,10 @@ def create_email_table( conn: psycopg2.extensions.connection):
 def create_location_table( conn: psycopg2.extensions.connection):
     # add phone number constraints
     with conn.cursor() as cursor:
-        cursor.execute("""CREATE TABLE location(
-         id INT PRIMARY KEY AUTOINCREMENT,
+        cursor.execute("""
+        DROP TABLE IF EXISTS location CASCADE;
+        CREATE TABLE location(
+         id SERIAL PRIMARY KEY ,
          name VARCHAR(30)
         );""")
 
@@ -70,10 +80,12 @@ def create_location_table( conn: psycopg2.extensions.connection):
 def create_charityLocation_table( conn: psycopg2.extensions.connection):
     # add phone number constraints
     with conn.cursor() as cursor:
-        cursor.execute("""CREATE TABLE charityLocation(
-          url VARCHAR(2048) FOREIGN KEY REFERENCES charity(url),
-          id INT FOREIGN KEY REFERENCES location(id),
-          PRIMARY KEY (url, int)
+        cursor.execute("""
+        DROP TABLE IF EXISTS charityLocation CASCADE;
+        CREATE TABLE charityLocation(
+          url VARCHAR(2048) REFERENCES charity(url),
+          id INT REFERENCES location(id),
+          PRIMARY KEY(url, id)
         );""")
 
         conn.commit()
