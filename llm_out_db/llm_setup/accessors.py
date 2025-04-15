@@ -7,45 +7,131 @@ from llm_setup import get_db_logger
 LOGGER = get_db_logger()
 
 
-def insert_crawl_item(
+def insert_charity(
     conn: psycopg2.extensions.connection,
     link: str,
-    pscore: Score | None,
-    lscore: Score | None,
-    time_queued: datetime | None,
-    time_crawled: datetime | None,
-    batch_id: int | None = None,
-) -> int:
+    name: str,
+    summary: str | None
+):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into crawl_item (link, pscore, lscore, time_queued, time_crawled, batch_id) values (%s, %s, %s, %s, %s, %s) returning id",
+            "insert into charity (url, name, summary) values (%s, %s, %s)",
             (
                 link,
-                pscore.value if pscore else None,
-                lscore.value if lscore else None,
-                time_queued.isoformat() if time_queued else None,
-                time_crawled.isoformat() if time_crawled else None,
-                batch_id,
+                name, 
+                summary
             ),
         )
-        item_id = cursor.fetchone()[0]
-
-        if pscore and pscore.matched_predicates:
-            for tag in pscore.matched_predicates:
-                cursor.execute(
-                    "insert into crawl_item_tag (item_id, tag) values (%s, %s)",
-                    (item_id, tag.__str__()),
-                )
 
         conn.commit()
 
     LOGGER.info(
-        "Attempted to insert crawl_item [time_crawled=%s, id=%s]", time_crawled, item_id
+        "Attempted to insert charity [url=%s, name=%s]", url, name, 
     )
 
-    return item_id
+
+
+def insert_charity_number(
+    conn: psycopg2.extensions.connection,
+    link: str,
+    charity_num: str,
+    government: str
+):
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "insert into charity_num (url, charity_number, government) values (%s, %s, %s)",
+            (
+                link,
+                charity_num,
+                government
+            ),
+        )
+
+        conn.commit()
+
+    LOGGER.info(
+        "Attempted to insert charity_number [url=%s, number=%s]", link, charity_num,
+    )
 
 
 
+def insert_phone_num(
+    conn: psycopg2.extensions.connection,
+    link: str,
+    phone: str
+):
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "insert into phone_num (url, phone_number) values (%s, %s)",
+            (
+                link,
+                phone
+            ),
+        )
+
+        conn.commit()
+
+    LOGGER.info(
+        "Attempted to insert phone number [url=%s, number=%s]", link, phone
+    )
 
 
+def insert_email(
+    conn: psycopg2.extensions.connection,
+    link: str,
+    email: str,
+):
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "insert into charity (url, email) values (%s, %s)",
+            (
+                link,
+                email
+            ),
+        )
+
+        conn.commit()
+
+    LOGGER.info(
+        "Attempted to insert email [url=%s, email=%s]", link, email
+    )
+
+
+def insert_location(
+    conn: psycopg2.extensions.connection,
+    name: str,
+):
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "insert into charity (name) values (%s)",
+            (
+                name
+            ),
+        )
+
+        conn.commit()
+
+    LOGGER.info(
+        "Attempted to insert location [name=%s]", name
+    )
+
+
+def insert_charity(
+    conn: psycopg2.extensions.connection,
+    link: str,
+    loc: int
+):
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "insert into charity (url, id) values (%s, %s)",
+            (
+                link,
+                loc
+            ),
+        )
+
+        conn.commit()
+
+    LOGGER.info(
+        "Attempted to insert charity-location [url=%s, id=%i]", link, loc
+    )
