@@ -17,12 +17,12 @@ def create_charity_table( conn: psycopg2.extensions.connection):
     LOGGER.info("Attempted to create 'charity' table")
 
 
-def create_charityNum_table( conn: psycopg2.extensions.connection):
+def create_charity_num_table( conn: psycopg2.extensions.connection):
     # make constraint that government either eng or sco ?
     with conn.cursor() as cursor:
         cursor.execute("""
-        DROP TABLE IF EXISTS charityNum CASCADE;
-        CREATE TABLE charityNum(
+        DROP TABLE IF EXISTS charity_num CASCADE;
+        CREATE TABLE charity_num(
         url VARCHAR(2048) REFERENCES charity(url),
         charity_number VARCHAR(8),
         government varchar(3) NOT NULL,
@@ -31,14 +31,14 @@ def create_charityNum_table( conn: psycopg2.extensions.connection):
 
         conn.commit()
     
-    LOGGER.info("Attempted to create 'charityNum' table")
+    LOGGER.info("Attempted to create 'charity_num' table")
 
-def create_phoneNum_table( conn: psycopg2.extensions.connection):
+def create_phone_num_table( conn: psycopg2.extensions.connection):
     # add phone number constraints
     with conn.cursor() as cursor:
         cursor.execute("""
-        DROP TABLE IF EXISTS phoneNum CASCADE;
-        CREATE TABLE phoneNum(
+        DROP TABLE IF EXISTS phone_num CASCADE;
+        CREATE TABLE phone_num(
          url VARCHAR(2048) REFERENCES charity(url),
          phone_number VARCHAR(15),
          PRIMARY KEY(url, phone_number)
@@ -46,7 +46,7 @@ def create_phoneNum_table( conn: psycopg2.extensions.connection):
 
         conn.commit()
     
-    LOGGER.info("Attempted to create 'phoneNum' table")
+    LOGGER.info("Attempted to create 'phone_num' table")
 
 def create_email_table( conn: psycopg2.extensions.connection):
     # add email constraints
@@ -77,12 +77,12 @@ def create_location_table( conn: psycopg2.extensions.connection):
     
     LOGGER.info("Attempted to create 'location' table")
 
-def create_charityLocation_table( conn: psycopg2.extensions.connection):
+def create_charity_location_table( conn: psycopg2.extensions.connection):
     # add phone number constraints
     with conn.cursor() as cursor:
         cursor.execute("""
-        DROP TABLE IF EXISTS charityLocation CASCADE;
-        CREATE TABLE charityLocation(
+        DROP TABLE IF EXISTS charity_location CASCADE;
+        CREATE TABLE charity_location(
           url VARCHAR(2048) REFERENCES charity(url),
           id INT REFERENCES location(id),
           PRIMARY KEY(url, id)
@@ -90,15 +90,15 @@ def create_charityLocation_table( conn: psycopg2.extensions.connection):
 
         conn.commit()
     
-    LOGGER.info("Attempted to create 'charityLocation' table")
+    LOGGER.info("Attempted to create 'charity_location' table")
 
 if __name__ == "__main__":
     LOGGER = get_db_logger()
     conn = connect.connect()
     create_charity_table(conn)
-    create_charityNum_table(conn)
-    create_phoneNum_table(conn)
+    create_charity_num_table(conn)
+    create_phone_num_table(conn)
     create_email_table(conn)
     create_location_table(conn)
-    create_charityLocation_table(conn)
+    create_charity_location_table(conn)
 
