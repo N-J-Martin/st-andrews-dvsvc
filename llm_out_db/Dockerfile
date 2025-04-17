@@ -12,4 +12,4 @@ RUN mkdir -p /app/logs/
 
 COPY . .
 
-CMD ["python3", "table_setup.py"]
+CMD ["sh", "run.sh"]

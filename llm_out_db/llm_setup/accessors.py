@@ -26,7 +26,7 @@ def insert_charity(
         conn.commit()
 
     LOGGER.info(
-        "Attempted to insert charity [url=%s, name=%s]", url, name, 
+        "Attempted to insert charity [url=%s, name=%s]", link, name, 
     )
 
 
@@ -116,14 +116,14 @@ def insert_location(
     )
 
 
-def insert_charity(
+def insert_charity_location(
     conn: psycopg2.extensions.connection,
     link: str,
     loc: int
 ):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into charity (url, id) values (%s, %s)",
+            "insert into charity_location (url, id) values (%s, %s)",
             (
                 link,
                 loc

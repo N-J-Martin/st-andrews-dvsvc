@@ -101,4 +101,5 @@ if __name__ == "__main__":
     create_email_table(conn)
     create_location_table(conn)
     create_charity_location_table(conn)
+    conn.close()
 
