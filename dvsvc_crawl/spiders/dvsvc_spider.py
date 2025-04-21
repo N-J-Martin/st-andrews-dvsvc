@@ -342,6 +342,10 @@ class DvsvcSpider(CrawlSpider):
             # Update health metrics
             self.log_lscores.append(lscore.value)
 
+        # follow links in the response page (from scrapy tutorial)
+        yield from response.follow_all(css="ul.pager a", callback=self.parse)
+
+
         # Itemise immediately for exceptional pscore
         if pscore.value >= _EXCEPTIONAL_PSCORE:
             yield DvsvcCrawlItem(
