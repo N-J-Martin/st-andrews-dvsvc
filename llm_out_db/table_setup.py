@@ -25,7 +25,7 @@ def create_charity_num_table( conn: psycopg2.extensions.connection):
         CREATE TABLE charity_num(
         url VARCHAR(2048) REFERENCES charity(url),
         charity_number VARCHAR(8),
-        government varchar(3) NOT NULL,
+        government varchar(2048) NOT NULL,
         PRIMARY KEY (url, charity_number)
         );""")
 
@@ -40,7 +40,7 @@ def create_phone_num_table( conn: psycopg2.extensions.connection):
         DROP TABLE IF EXISTS phone_num CASCADE;
         CREATE TABLE phone_num(
          url VARCHAR(2048) REFERENCES charity(url),
-         phone_number VARCHAR(15),
+         phone_number VARCHAR(30),
          PRIMARY KEY(url, phone_number)
         );""")
 
@@ -69,8 +69,8 @@ def create_location_table( conn: psycopg2.extensions.connection):
         cursor.execute("""
         DROP TABLE IF EXISTS location CASCADE;
         CREATE TABLE location(
-         id SERIAL PRIMARY KEY ,
-         name VARCHAR(30)
+         id INT PRIMARY KEY ,
+         name VARCHAR(2048)
         );""")
 
         conn.commit()

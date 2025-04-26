@@ -83,7 +83,7 @@ def insert_email(
 ):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into charity (url, email) values (%s, %s)",
+            "insert into email (url, email) values (%s, %s)",
             (
                 link,
                 email
@@ -99,12 +99,14 @@ def insert_email(
 
 def insert_location(
     conn: psycopg2.extensions.connection,
+    id: int,
     name: str,
 ):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into charity (name) values (%s)",
+            "insert into location (id, name) values (%s, %s)",
             (
+                id,
                 name
             ),
         )

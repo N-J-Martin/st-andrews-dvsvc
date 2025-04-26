@@ -1,12 +1,12 @@
-#import psycopg2
+import psycopg2
 import pandas as pd
 import ast
 
-#from llm_setup import get_db_logger, connect, accessors
+from llm_setup import get_db_logger, connect, accessors
 
 if __name__ == "__main__":
-#    LOGGER = get_db_logger()
-#    conn = connect.connect()
+    LOGGER = get_db_logger()
+    conn = connect.connect()
   
     #accessors.insert_charity(conn,  "www.test.com", "test", "test" )
     # need to clean up csv file - have to merge corrected with original, so all values are correct. corrected columns only contain corrections where necessary
@@ -21,17 +21,35 @@ if __name__ == "__main__":
     
     df = df[["url_corrected","charity_numbers_corrected","summary_corrected","phone_corrected","email_corrected","locations_corrected","name_corrected"]]
    
+    all_locs = []
     for row in df.itertuples():
-      #accessors.insert_charity(conn, row.url_corrected, row.name_corrected, row.summary_corrected)
-      #print(row.charity_numbers_corrected)
       try:
+         accessors.insert_charity(conn, row.url_corrected.strip(), row.name_corrected.strip(), row.summary_corrected.strip())
          charity_nums = ast.literal_eval(row.charity_numbers_corrected)
-         #for c in charity_nums:
-         #   if charity_nums[c] is not None:
-         #      accessors.insert_charity_number(conn, row.url_corrected, charity_nums[c], c)
+         for c in charity_nums:
+            if charity_nums[c] is not None:
+               accessors.insert_charity_number(conn, row.url_corrected, charity_nums[c], c)
+         
+         phones = str(row.phone_corrected).split(",")
+         for p in phones:
+            if p != "nan":
+               accessors.insert_phone_num(conn, row.url_corrected.strip(), p.strip())
+      
+         emails = str(row.email_corrected).split(",")
+         for e in emails:
+            if e != "nan":
+               accessors.insert_email(conn, row.url_corrected.strip(), e.strip())
+         
+         locations = ast.literal_eval(row.locations_corrected)
+         for l in locations:
+            if l not in all_locs:
+               all_locs.append(l)
+               accessors.insert_location(conn, len(all_locs) - 1,  l.strip())
+
+            accessors.insert_charity_location(conn, row.url_corrected.strip(), all_locs.index(l))
+
       except Exception as e:
          print(f"Error: {e}")
       
-      print(row.phone_corrected)
 
- #   conn.close()
+    conn.close()
