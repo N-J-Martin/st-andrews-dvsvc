@@ -14,6 +14,8 @@ This automatically loads environment variables from `.env` in the project direct
 
 `docker compose run db pgadmin` will only spin up the database and pgAdmin containers. Access pgAdmin from a browser at port 5051, as specified in `compose.yaml`.
 
+May need to remove db_data volume if database isn't loading.
+
 ## Run just the crawler (without Docker)
 
 Specify `./simple-run.sh <output-file>` for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`.
