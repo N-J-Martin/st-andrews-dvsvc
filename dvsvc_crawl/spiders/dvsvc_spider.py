@@ -38,6 +38,7 @@ _FLD_HISTORIES = ExpiringDict(
 
 _METRIC_OUTPUT_FREQUENCY = 100  # Log health metrics every 100 requests
 
+_MAX_DEPTH = 1 #max url dollwo depth - only follow links from main page.(and only follow one level deep)
 
 def lscore_to_prio(lscore: float) -> int:
     if lscore == inf:
@@ -342,8 +343,9 @@ class DvsvcSpider(CrawlSpider):
             # Update health metrics
             self.log_lscores.append(lscore.value)
 
-        # follow links in the response page (from scrapy tutorial)
-        yield from response.follow_all(css="ul.pager a", callback=self.parse)
+        # follow links in the response page (from scrapy tutorial and https://stackoverflow.com/questions/46341974/scrapy-follow-external-link-with-one-depth-only)
+        if response.meta["depth"] < _MAX_DEPTH:
+            yield from response.follow_all(css="ul.pager a", callback=self.parse)
 
 
         # Itemise immediately for exceptional pscore
