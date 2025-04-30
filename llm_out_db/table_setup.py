@@ -8,7 +8,7 @@ def create_charity_table( conn: psycopg2.extensions.connection):
         DROP TABLE IF EXISTS charity CASCADE;
         CREATE TABLE charity(
         url VARCHAR(2048) PRIMARY KEY,
-        name VARCHAR (50) NOT NULL,
+        name VARCHAR (2048) NOT NULL,
         summary VARCHAR(2048)
         );""")
 
@@ -55,7 +55,7 @@ def create_email_table( conn: psycopg2.extensions.connection):
         DROP TABLE IF EXISTS email CASCADE;
         CREATE TABLE email(
          url VARCHAR(2048) REFERENCES charity(url),
-         email VARCHAR(30),
+         email VARCHAR(2048),
          PRIMARY KEY(url, email)
         );""")
 

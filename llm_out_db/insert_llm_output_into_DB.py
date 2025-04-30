@@ -24,7 +24,7 @@ if __name__ == "__main__":
     all_locs = []
     for row in df.itertuples():
       try:
-         accessors.insert_charity(conn, row.url_corrected.strip(), row.name_corrected.strip(), row.summary_corrected.strip())
+         accessors.insert_charity(conn, str(row.url_corrected).strip(), str(row.name_corrected).strip(), str(row.summary_corrected).strip())
          charity_nums = ast.literal_eval(row.charity_numbers_corrected)
          for c in charity_nums:
             if charity_nums[c] is not None:
@@ -33,20 +33,20 @@ if __name__ == "__main__":
          phones = str(row.phone_corrected).split(",")
          for p in phones:
             if p != "nan":
-               accessors.insert_phone_num(conn, row.url_corrected.strip(), p.strip())
+               accessors.insert_phone_num(conn, str(row.url_corrected).strip(), str(p).strip())
       
          emails = str(row.email_corrected).split(",")
          for e in emails:
             if e != "nan":
-               accessors.insert_email(conn, row.url_corrected.strip(), e.strip())
+               accessors.insert_email(conn, str(row.url_corrected).strip(), str(e).strip())
          
          locations = ast.literal_eval(row.locations_corrected)
          for l in locations:
             if l not in all_locs:
                all_locs.append(l)
-               accessors.insert_location(conn, len(all_locs) - 1,  l.strip())
+               accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip())
 
-            accessors.insert_charity_location(conn, row.url_corrected.strip(), all_locs.index(l))
+            accessors.insert_charity_location(conn, str(row.url_corrected).strip(), all_locs.index(l))
 
       except Exception as e:
          print(f"Error: {e}")
