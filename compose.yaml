@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./dvsvc_db/schema_dump.sql:/docker-entrypoint-initdb.d/schema_dump.sql
 
   pgadmin:
     image: dpage/pgadmin4
