@@ -1,8 +1,15 @@
 import psycopg2
 import pandas as pd
+import phonenumbers
 import ast
 
 from llm_setup import get_db_logger, connect, accessors
+
+def standardise_phone_number(x):
+   try:
+      return phonenumbers.format_number(phonenumbers.parse(str(x), "GB"), phonenumbers.PhoneNumberFormat.E164)
+   except:
+      return "nan"
 
 if __name__ == "__main__":
     LOGGER = get_db_logger()
@@ -18,6 +25,9 @@ if __name__ == "__main__":
     df["email_corrected"] = df["email_corrected"].fillna(df["email"])
     df["locations_corrected"] = df["locations_corrected"].fillna(df["locations"])
     df["name_corrected"] = df["name_corrected"].fillna(df["name"])
+
+   #standardise telephone using https://pypi.org/project/phonenumbers/
+    df["phone_corrected"] = df["phone_corrected"].map(lambda x: standardise_phone_number(x) )
     
     df = df[["url_corrected","charity_numbers_corrected","summary_corrected","phone_corrected","email_corrected","locations_corrected","name_corrected"]]
    

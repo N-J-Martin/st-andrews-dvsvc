@@ -39,7 +39,7 @@ def create_charity_num_table( conn: psycopg2.extensions.connection):
     LOGGER.info("Attempted to create 'charity_num' table")
 
 def create_phone_num_table( conn: psycopg2.extensions.connection):
-    # phone number constraints from https://uibakery.io/regex-library/phone-number-python
+    # using E164 phone number format as is international standard
     with conn.cursor() as cursor:
         cursor.execute("""
         DROP TABLE IF EXISTS phone_num CASCADE;
@@ -48,7 +48,7 @@ def create_phone_num_table( conn: psycopg2.extensions.connection):
          phone_number VARCHAR(30),
          PRIMARY KEY(url, phone_number),
          CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?'),
-         CHECK ( phone_number ~ '^\+?[0-9]{1,4}?[-. ]?(?[0-9]{1,3}?)?[-. ]?[0-9]{1,4}[-. ]?[0-9]{1,4}[-. ]?[0-9]{1,9}$' )
+         CHECK ( phone_number ~ '\+[0-9]{0,15}' )
         );""")
 
         conn.commit()
@@ -56,7 +56,7 @@ def create_phone_num_table( conn: psycopg2.extensions.connection):
     LOGGER.info("Attempted to create 'phone_num' table")
 
 def create_email_table( conn: psycopg2.extensions.connection):
-    # email regex from https://uibakery.io/regex-library/email
+    # email regex from https://www.geeksforgeeks.org/how-to-validate-email-address-using-regexp-in-javascript/
     with conn.cursor() as cursor:
         cursor.execute("""
         DROP TABLE IF EXISTS email CASCADE;
@@ -65,9 +65,9 @@ def create_email_table( conn: psycopg2.extensions.connection):
          email VARCHAR(2048),
          PRIMARY KEY(url, email),
          CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?'),
-         CHECK (email ~ '^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$')
-        );""")
-
+         CHECK (email ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')
+        )
+        """)
         conn.commit()
     
     LOGGER.info("Attempted to create 'email' table")
