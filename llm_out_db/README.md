@@ -1,8 +1,8 @@
-To run this database, run from this folder,
+To run this database (in postgres container), run from this folder,
 ``` podman compose build```
 ```podman compose up ```
 
-This runs table_setup.py (runs create table statements) and insert_llm_output_into_DB.py (actually sanitises, and inserts the data).
+This runs table_setup.py (runs create table statements) and insert_llm_output_into_DB.py (actually sanitises, and inserts the data). 
 
 Also requires checked, "extracted_data.csv".
 With data in format
