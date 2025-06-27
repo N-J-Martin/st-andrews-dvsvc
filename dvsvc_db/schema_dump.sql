@@ -35,7 +35,7 @@ CREATE TABLE public.crawl_item (
 );
 
 
-ALTER TABLE public.crawl_item OWNER TO postgres;
+--ALTER TABLE public.crawl_item OWNER TO postgres;
 
 --
 -- Name: crawl_item_batch; Type: TABLE; Schema: public; Owner: postgres
@@ -47,7 +47,7 @@ CREATE TABLE public.crawl_item_batch (
 );
 
 
-ALTER TABLE public.crawl_item_batch OWNER TO postgres;
+--ALTER TABLE public.crawl_item_batch OWNER TO postgres;
 
 --
 -- Name: crawl_item_batch_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -62,7 +62,7 @@ CREATE SEQUENCE public.crawl_item_batch_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.crawl_item_batch_id_seq OWNER TO postgres;
+--ALTER TABLE public.crawl_item_batch_id_seq OWNER TO postgres;
 
 --
 -- Name: crawl_item_batch_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -81,7 +81,7 @@ CREATE TABLE public.crawl_item_tag (
 );
 
 
-ALTER TABLE public.crawl_item_tag OWNER TO postgres;
+--ALTER TABLE public.crawl_item_tag OWNER TO postgres;
 
 --
 -- Name: crawlitem_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -96,7 +96,7 @@ CREATE SEQUENCE public.crawlitem_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.crawlitem_id_seq OWNER TO postgres;
+--ALTER TABLE public.crawlitem_id_seq OWNER TO postgres;
 
 --
 -- Name: crawlitem_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -117,7 +117,7 @@ SELECT
     NULL::text AS tags;
 
 
-ALTER TABLE public.view_crawl_item_summary OWNER TO postgres;
+--ALTER TABLE public.view_crawl_item_summary OWNER TO postgres;
 
 --
 -- Name: view_crawl_fld; Type: VIEW; Schema: public; Owner: postgres
@@ -133,7 +133,7 @@ CREATE VIEW public.view_crawl_fld AS
   GROUP BY ("substring"((view_crawl_item_summary.link)::text, '(?:https?://)?(?:www\.)?([^/]*)'::text));
 
 
-ALTER TABLE public.view_crawl_fld OWNER TO postgres;
+--ALTER TABLE public.view_crawl_fld OWNER TO postgres;
 
 --
 -- Name: view_crawl_item_summary_non_batch; Type: VIEW; Schema: public; Owner: postgres
@@ -146,7 +146,7 @@ SELECT
     NULL::timestamp with time zone AS time_crawled;
 
 
-ALTER TABLE public.view_crawl_item_summary_non_batch OWNER TO postgres;
+--ALTER TABLE public.view_crawl_item_summary_non_batch OWNER TO postgres;
 
 --
 -- Name: crawl_item id; Type: DEFAULT; Schema: public; Owner: postgres
