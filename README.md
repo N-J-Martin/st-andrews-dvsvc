@@ -18,6 +18,8 @@ To ensure use of `schema_dump.sql` to initialise database, need to remove `db_da
 `docker compose run db pgadmin` will only spin up the database and pgAdmin containers. Access pgAdmin from a browser at port 5051, as specified in `compose.yaml`. The hostname of the database will be the container ID of db container.
 
 ## Run just the crawler (without Docker)
+First, set up an virtual environment, with requirements.txt installed (on Lab PCs use psycopg2-binary instead of psycopg2).
+Also ensure environement variables in .env are loaded, including DB_HOST.
 
 Specify `./simple-run.sh <output-file>` for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`.
 
