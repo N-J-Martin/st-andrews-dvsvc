@@ -19,9 +19,13 @@ To ensure use of `schema_dump.sql` to initialise database, need to remove `db_da
 
 ## Run just the crawler (without Docker)
 First, set up an virtual environment, with requirements.txt installed (on Lab PCs use psycopg2-binary instead of psycopg2).
-Also ensure environement variables in .env are loaded, including DB_HOST.
+Also ensure environement variables in .env are loaded, including DB_HOST (as seen [here](https://stackoverflow.com/questions/9554087/setting-an-environment-variable-in-virtualenv)).
 
-Specify `./simple-run.sh <output-file>` for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`.
+Specify `./simple-run.sh <output-file>` for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`. 
+
+Note: CSV output only viewable once the crawler has finished. To see in batches, add
+`FEED_EXPORT_BATCH_ITEM_COUNT = N` to `dvsvc_crawl/settings.py`, 
+and run with file name of format `%(batch_id)d-filename%(batch_time)s.csv`.
 
 ## Use in the CS labs
 
