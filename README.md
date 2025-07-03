@@ -30,3 +30,19 @@ and run with file name of format `%(batch_id)d-filename%(batch_time)s.csv`.
 ## Use in the CS labs
 
 `podman` should be a direct replacement for Docker. `podman-compose` should be installable using `pip`.
+
+## Running LLM on P&N cluster
+
+Follow instructions provided by ITS to access cluster, and set up an interactive job.
+Set up python venv and install requirements.txt, again following as advised by ITS.
+
+Ensuring `starting_links.txt` is in the `resource` folder, run `download_starting_page_texts.py` to download the page to `resource/starting_page_texts`.
+
+Then run the ollama container in the background, using docker or equivalent, again described in the ITS instructions.
+Finally run `submit_pages_to_model.py`, which will output the llm responses to `resource/llm_response`.
+
+Export llm responses from cluster as required. 
+
+## Cleaned LLM output database
+ See README in `llm_out_db` folder.
+
