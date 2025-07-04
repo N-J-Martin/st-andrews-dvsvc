@@ -2,6 +2,10 @@
 
 A web crawler to discover UK-based domestic violence support services.
 
+## Requirements
+
+ * Charity Register, stored in `resource` folder, with path updated in the `__SCOT_CHARITIES_PATH` variable in `heuristics/dvdvsc_scorers.py`. Retrieved from the [OSCR](https://www.oscr.org.uk/about-charities/search-the-register/download-the-scottish-charity-register/).  © Crown Copyright and database right [year]. Contains information from the Scottish Charity Register supplied by the Office of the Scottish Charity Regulator and licensed under the Open Government Licence v.3.0. (http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
+
 ## Use with Docker
 
 After building the image with `docker compose build`, run `docker compose up` to start four containers:
@@ -38,8 +42,11 @@ Set up python venv and install requirements.txt, again following as advised by I
 
 Ensuring `starting_links.txt` is in the `resource` folder, run `download_starting_page_texts.py` to download the page to `resource/starting_page_texts`.
 
-Then run the ollama container in the background, using docker or equivalent, again described in the ITS instructions.
+Then run the ollama container in the background, using docker or equivalent, again described in the ITS instructions. Alternatively, you can use apptainer instead, using the instructions [here](https://wiki.cs.st-andrews.ac.uk/index.php?title=Apptainer#Nvidia_container_images), replacing the commands to run llama with the ones in `run_model.sh`.
+
 Finally run `submit_pages_to_model.py`, which will output the llm responses to `resource/llm_response`.
+
+
 
 Export llm responses from cluster as required. 
 
