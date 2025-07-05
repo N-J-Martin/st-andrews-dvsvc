@@ -60,15 +60,16 @@ and run with file name of format `%(batch_id)d-filename%(batch_time)s.csv`.
 ## Running LLM on P&N cluster
 
 Follow instructions provided by ITS to access cluster, and set up an interactive job.
-Set up python venv and install requirements.txt, again following as advised by ITS, or using the instructions given in the `Run Just the Crawler` section .
+Set up python venv and install `scripts/requirements.txt`, again following as advised by ITS, or using the instructions given in the `Run Just the Crawler` section .
 
-Ensuring `starting_links.txt` is in the `resource` folder, run `download_starting_page_texts.py` to download the page to `resource/starting_page_texts`.
+Ensuring `starting_links.txt` is in the `resource` folder, run `scripts/download_starting_page_texts.py` to download the page to `resource/starting_page_texts`.
 
 Then run the ollama container in the background, using docker or equivalent, again described in the ITS instructions. Alternatively, you can use apptainer instead, using the instructions [here](https://wiki.cs.st-andrews.ac.uk/index.php?title=Apptainer#Nvidia_container_images), replacing the commands to run llama with the ones in `run_model.sh`.
 
-Finally run `submit_pages_to_model.py`, which will output the llm responses to `resource/llm_response`.
+Finally run `scripts/submit_pages_to_model.py`, which will output the llm responses to `resource/llm_response`.
 
-Export llm responses from cluster as required. 
+Export llm responses from cluster to local PC as required.
+On the local PC, to convert JSON responses to a collective CSV file, set `directory` and `output_file` paths as appropriate in `scripts/database_reformat.py`, and run that script.
 
 ## Cleaned LLM output database
  See README in `llm_out_db` folder.
