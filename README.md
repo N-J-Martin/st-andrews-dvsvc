@@ -13,21 +13,43 @@ After building the image with `docker compose build`, run `docker compose up` to
 * `app` (the crawler)
 * `db` (the PostgreSQL database server)
 * `pgadmin`
-* `ollama` (requires nvidia GPU)
+* `ollama` (requires nvidia GPU, but other containers should run even if this doesn't)
 
 This automatically loads environment variables from `.env` in the project directory. Set one up as per `example.env`.
 
 To ensure use of `schema_dump.sql` to initialise database, need to remove `db_data` volume using `docker volume rm st-andrews-dvsvc_db_data` before using `up` command.
 
-`docker compose run db pgadmin` will only spin up the database and pgAdmin containers. Access pgAdmin from a browser at port 5051, as specified in `compose.yaml`. The hostname of the database will be the container ID of db container.
+`docker compose run db pgadmin` will only spin up the database and pgAdmin containers. Access pgAdmin from a browser at port 5051, as specified in `compose.yaml`. The hostname of the database will be the container ID of db container (found by `docker compose ps`).
 
 ## Run just the crawler (without Docker)
-First, set up an virtual environment, with requirements.txt installed (on Lab PCs use psycopg2-binary instead of psycopg2).
-Also ensure environment variables in .env are loaded, including DB_HOST (as seen [here](https://stackoverflow.com/questions/9554087/setting-an-environment-variable-in-virtualenv)).
+First, create a virtual environment.
+`python3.10 -m venv <env name>`
+
+Then activate the environment.
+
+(MacOS/Linux) `source <env name>/bin/activate>`
+(Windows) `<env name>\Scripts\activate`
+
+Use `deactivate` to exit the environment afterwards. 
+
+In the environment, install requirements.txt (on Lab PCs use psycopg2-binary instead of psycopg2 as PostgresSQL is not installed).
+
+`pip install -r requirements.txt`
+
+Also ensure environment variables in .env are loaded, including DB_HOST = 127.0.0.1. By adding for each environment variable:
+
+(Linux) `export <VAR> =<VALUE>`  to the end of `<env name>/bin/activate` file
+
+(Windows) `set <VAR> =<VALUE>`  to the end of `<env name>/Scripts/activate.bat` file
+
+and
+
+`unset <VAR>` to the `deactivate` function in the same file as above.
+(as seen [here](https://stackoverflow.com/questions/9554087/setting-an-environment-variable-in-virtualenv)).
 
 Specify `./simple-run.sh <output-file>` for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`. 
 
-Note: CSV output only viewable once the crawler has finished. To see in batches, add
+Note: CSV output is only viewable once the crawler has finished. To see in batches, add
 `FEED_EXPORT_BATCH_ITEM_COUNT = N` to `dvsvc_crawl/settings.py`, 
 and run with file name of format `%(batch_id)d-filename%(batch_time)s.csv`.
 
@@ -38,15 +60,13 @@ and run with file name of format `%(batch_id)d-filename%(batch_time)s.csv`.
 ## Running LLM on P&N cluster
 
 Follow instructions provided by ITS to access cluster, and set up an interactive job.
-Set up python venv and install requirements.txt, again following as advised by ITS.
+Set up python venv and install requirements.txt, again following as advised by ITS, or using the instructions given in the `Run Just the Crawler` section .
 
 Ensuring `starting_links.txt` is in the `resource` folder, run `download_starting_page_texts.py` to download the page to `resource/starting_page_texts`.
 
 Then run the ollama container in the background, using docker or equivalent, again described in the ITS instructions. Alternatively, you can use apptainer instead, using the instructions [here](https://wiki.cs.st-andrews.ac.uk/index.php?title=Apptainer#Nvidia_container_images), replacing the commands to run llama with the ones in `run_model.sh`.
 
 Finally run `submit_pages_to_model.py`, which will output the llm responses to `resource/llm_response`.
-
-
 
 Export llm responses from cluster as required. 
 
