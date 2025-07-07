@@ -28,7 +28,7 @@ First, create a virtual environment.
 Then activate the environment.
 
 (MacOS/Linux) `source <env name>/bin/activate>`
-(Windows) `<env name>\Scripts\activate`
+(Windows - cmd) `<env name>\Scripts\activate.bat`
 
 Use `deactivate` to exit the environment afterwards. 
 
@@ -38,20 +38,21 @@ In the environment, install requirements.txt (on Lab PCs use psycopg2-binary ins
 
 Also ensure environment variables in .env are loaded, including DB_HOST = 127.0.0.1. By adding for each environment variable:
 
-(Linux) `export <VAR> =<VALUE>`  to the end of `<env name>/bin/activate` file
+(Linux) `export <VAR>=<VALUE>`  to the end of `<env name>/bin/activate` file
 
-(Windows) `set <VAR> =<VALUE>`  to the end of `<env name>/Scripts/activate.bat` file
+(Windows - cmd) `set <VAR>=<VALUE>`  to the end of `<env name>/Scripts/activate.bat` file
 
 and
 
-`unset <VAR>` to the `deactivate` function in the same file as above.
+`unset <VAR>` to the `deactivate` function, if present in the same file as above.
 (as seen [here](https://stackoverflow.com/questions/9554087/setting-an-environment-variable-in-virtualenv)).
 
-Specify `./simple-run.sh <output-file>` for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`. 
+Specify `./simple-run.sh <output-file>` (Linux/MacOS) or `scrapy crawl dvsvc -o <output-file>`(Windows cmd) for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`. 
 
 Note: CSV output is only viewable once the crawler has finished. To see in batches, add
 `FEED_EXPORT_BATCH_ITEM_COUNT = N` to `dvsvc_crawl/settings.py`, 
 and run with file name of format `%(batch_id)d-filename%(batch_time)s.csv`.
+
 
 ## Use in the CS labs
 
