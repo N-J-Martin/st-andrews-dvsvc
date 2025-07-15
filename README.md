@@ -36,18 +36,9 @@ In the environment, install requirements.txt (on Lab PCs use psycopg2-binary ins
 
 `pip install -r requirements.txt`
 
-Also ensure environment variables in .env are loaded, including DB_HOST = 127.0.0.1. By adding for each environment variable:
+Ensure you have completed a `.env`(Linux/MacOS) or `env.bat`(Windows) as specified in `example.env`. Note, `DB_HOST` will need to be specified too (i.e: as "127.0.0.1"), because the scraper will still try to write to a database. 
 
-(Linux) `export <VAR>=<VALUE>`  to the end of `<env name>/bin/activate` file
-
-(Windows - cmd) `set <VAR>=<VALUE>`  to the end of `<env name>/Scripts/activate.bat` file
-
-and
-
-`unset <VAR>` to the `deactivate` function, if present in the same file as above.
-(as seen [here](https://stackoverflow.com/questions/9554087/setting-an-environment-variable-in-virtualenv)).
-
-Specify `./simple-run.sh <output-file>` (Linux/MacOS) or `scrapy crawl dvsvc -o <output-file>`(Windows cmd) for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`. 
+Specify `./simple-run.sh <output-file>` (Linux/MacOS) or `simple-run.bat <output-file>`(Windows cmd) for a crawl with plain CSV output. For particular features like job [persistence](https://docs.scrapy.org/en/latest/topics/jobs.html), run using `scrapy crawl dvsvc <args...>`. 
 
 Note: CSV output is only viewable once the crawler has finished. To see in batches, add
 `FEED_EXPORT_BATCH_ITEM_COUNT = N` to `dvsvc_crawl/settings.py`, 
