@@ -1,1 +1,4 @@
+set -a
+source .env
+set +a 
 scrapy crawl dvsvc -o $1 2>&1 | grep --color -E "\[dvsvc-spiders\]|$"
