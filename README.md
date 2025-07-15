@@ -49,7 +49,7 @@ Then activate the environment.
 (Windows - cmd) `venv\Scripts\activate.bat`
 
 
-In the environment, install requirements.txt (on Lab PCs use psycopg2-binary instead of psycopg2 as PostgresSQL is not installed).
+In the environment, install requirements.txt (on Lab PCs use psycopg2-binary instead of psycopg2 as PostgreSQL is not installed).
 
 `pip install -r requirements.txt`
 
@@ -101,4 +101,22 @@ On the local PC, to convert JSON responses to a collective CSV file, set `direct
 
 ## Cleaned LLM output database
  See README in `llm_out_db` folder.
+
+## Common Issues
+### PostgreSQL Issues
+
+We've experienced some issues installing `psycopg2`.
+
+If the issue is the `OpenSSL` is not discovered, try specifying it's location with the `pip` command.
+
+`whereis openssl`
+
+will provide the OpenSSL path, then use it in 
+
+`LDFLAGS="-I<openssl-path>/include -L<openssl-path>/lib pip install -r requirements.txt`
+
+Otherwise, use the psycopg2 binary instead, by changing `psycopg2` to `pyscopg2-binary` in `requirements.txt`
+
+
+
 
