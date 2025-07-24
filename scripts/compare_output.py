@@ -33,7 +33,8 @@ def get_expected_results(file: str) -> tuple[dict, dict, dict]:
             
             if 'email' in s and s['email']:
                 email = s['email'].split(",")
-                emails.update(email)
+                for e in email:
+                    emails.add(e.strip())
 
         phone_dict[d["url_corrected"]] = phones.copy()
         email_dict[d["url_corrected"]] = emails.copy()
@@ -66,7 +67,8 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
 
                 if 'email' in s and s['email']:
                     email = s['email'].split(",")
-                    emails.update(email)
+                    for e in email:
+                        emails.add(e.strip())
 
             charity_nums = ast.literal_eval(d["charity_numbers"])
             charity_nums = list(charity_nums.values())
