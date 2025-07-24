@@ -42,6 +42,8 @@ def get_expected_results(file: str) -> tuple[dict, dict, dict]:
         
         expected_charity_nums = ast.literal_eval(d["charity_numbers_corrected"])
         expected_charity_nums = list(expected_charity_nums.values())
+        # remove None and "" values from list
+        expected_charity_nums = list(filter(lambda x: x != None and x != "", expected_charity_nums))
         charity_dict[d["url_corrected"]] = expected_charity_nums
 
     return phone_dict, email_dict, charity_dict
@@ -50,11 +52,13 @@ def get_expected_results(file: str) -> tuple[dict, dict, dict]:
 # reads response file, collects et of phone numbers, email addresses and charity numbers to compare with expected.
 def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, charity_dict: dict ) -> float:
     correct = 0
+    counted = 0
     response = pd.read_csv(file, usecols=["url", "charity_numbers","summary","services", "charity_name"] )
 
     for i, d in response.iterrows():
         # only checks urls in expected output
         if d["url"] in phone_dict: 
+            counted += 1
             service_list = ast.literal_eval(d["services"])
             phones = set()
             emails = set()
@@ -72,6 +76,7 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
 
             charity_nums = ast.literal_eval(d["charity_numbers"])
             charity_nums = list(charity_nums.values())
+            charity_nums = list(filter(lambda x: x != None and x != "", charity_nums))
 
         
             if phone_dict[d["url"]] != phones:
@@ -91,7 +96,7 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
         
 
     # return percentage of correct responses at the end
-    return (correct / len(phone_dict))*100
+    return (correct / counted)*100
 
 def main():
     phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
