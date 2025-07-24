@@ -1,8 +1,16 @@
 import pandas as pd
 import ast
+import phonenumbers
 
 EXPECTED_FILE = "../resource/expected_output.csv"
 IN_FILE = "../resource/extracted-24-07-25-14-25.csv"
+
+def standardise_phone_number(x):
+   try:
+      return phonenumbers.format_number(phonenumbers.parse(str(x), "GB"), phonenumbers.PhoneNumberFormat.E164)
+   except:
+      return None
+
 
 def get_expected_results(file: str) -> tuple[dict, dict, dict]:
     # based on url - as none were corrected
@@ -20,7 +28,8 @@ def get_expected_results(file: str) -> tuple[dict, dict, dict]:
         for s in service_list:
             if 'phone' in s and s['phone']:
                 phone = s['phone'].split(",")
-                phones.update(phone)
+                for p in phone:
+                    phones.add(standardise_phone_number(p))
             
             if 'email' in s and s['email']:
                 email = s['email'].split(",")
@@ -52,7 +61,8 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
             for s in service_list:
                 if 'phone' in s and s['phone']:
                     phone = s['phone'].split(",")
-                    phones.update(phone)
+                    for p in phone:
+                        phones.add(standardise_phone_number(p))
 
                 if 'email' in s and s['email']:
                     email = s['email'].split(",")
@@ -62,8 +72,21 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
             charity_nums = list(charity_nums.values())
 
         
-            if phone_dict[d["url"]] == phones and email_dict[d["url"]] == emails and charity_dict[d["url"]] == charity_nums:
+            if phone_dict[d["url"]] != phones:
+                print(f"Expected: {phone_dict[d["url"]]}")
+                print(f"Actual: {phones}")
+                print("============")
+            elif email_dict[d["url"]] != emails:
+                print(f"Expected: {email_dict[d["url"]]}")
+                print(f"Actual: {emails}")
+                print("============")
+            elif charity_dict[d["url"]] != charity_nums:
+                print(f"Expected: {charity_dict[d["url"]]}")
+                print(f"Actual: {charity_nums}")
+                print("============")
+            else:
                 correct += 1
+        
 
     # return percentage of correct responses at the end
     return (correct / len(phone_dict))*100
