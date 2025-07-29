@@ -4,7 +4,7 @@ import phonenumbers
 import getopt, sys
 
 EXPECTED_FILE = "../resource/expected_output.csv"
-IN_FILE = "../resource/extracted-24-07-25-15-55.csv"
+IN_FILE = "../resource/extracted-format-set.csv"
 
 def standardise_phone_number(x):
    try:
@@ -63,21 +63,29 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
             service_list = ast.literal_eval(d["services"])
             phones = set()
             emails = set()
+            charity_nums = []
 
             for s in service_list:
                 if 'phone' in s and s['phone']:
-                    phone = s['phone'].split(",")
+                    if type(s['phone']) == list :
+                        phone = s['phone']
+                    else:
+                        phone = s['phone'].split(",")
                     for p in phone:
                         phones.add(standardise_phone_number(p))
 
                 if 'email' in s and s['email']:
-                    email = s['email'].split(",")
+                    if type(s['email']) == list :
+                        email = s['email']
+                    else:
+                        email = s['email'].split(",")
                     for e in email:
-                        emails.add(e.strip())
-
-            charity_nums = ast.literal_eval(d["charity_numbers"])
-            charity_nums = list(charity_nums.values())
-            charity_nums = list(filter(lambda x: x != None and x != "", charity_nums))
+                        if e:
+                            emails.add(e.strip())
+            if d["charity_numbers"] == "nan":
+                charity_nums = ast.literal_eval(d["charity_numbers"])
+                charity_nums = list(charity_nums.values())
+                charity_nums = list(filter(lambda x: x != None and x != "", charity_nums))
 
             passed = False
             if phone_dict[d["url"]] != phones:
