@@ -1,5 +1,6 @@
 import pandas as pd
 import ast
+import re
 import phonenumbers
 import getopt, sys
 
@@ -121,6 +122,16 @@ def get_paragraph_text(file: str) -> dict:
         para_dict[d["url"]] = d["paragraph_text"]
     return para_dict
 
+def check_value_on_page(url:str, targets: list, paragraphs: dict) -> bool:
+    if url in paragraphs:
+        page = paragraphs[url]
+        for value in targets:
+            if value in page:
+                return False
+
+        return True
+    else:
+        raise ValueError("No page provided")
 
 def main():
     interactive = False
@@ -142,6 +153,15 @@ def main():
     print(f"Percentage of responses correct (3 S.F): {count_correct_responses(IN_FILE, phone_dict, email_dict, charity_dict, interactive):.3}")
 
 if __name__ == "__main__":
-    print(get_paragraph_text(IN_FILE))
+    para = get_paragraph_text(IN_FILE)
+    phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
+    for u, p in phone_dict.items():
+        try:
+            print(check_value_on_page(u, p, para))
+        except:
+            print("No page stored")
+
+
+
     #main()
 
