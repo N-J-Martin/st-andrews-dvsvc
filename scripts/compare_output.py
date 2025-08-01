@@ -4,7 +4,7 @@ import phonenumbers
 import getopt, sys
 
 EXPECTED_FILE = "../resource/expected_output.csv"
-IN_FILE = "../resource/extracted-format-set.csv"
+IN_FILE = "extracted_data.csv"
 
 def standardise_phone_number(x):
    try:
@@ -114,6 +114,14 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
     # return percentage of correct responses at the end
     return (correct / counted)*100
 
+def get_paragraph_text(file: str) -> dict:
+    para_dict = {}
+    response = pd.read_csv(file, usecols=["url", "paragraph_text"])
+    for i, d in response.iterrows():
+        para_dict[d["url"]] = d["paragraph_text"]
+    return para_dict
+
+
 def main():
     interactive = False
     argList  = sys.argv[1:]
@@ -134,5 +142,6 @@ def main():
     print(f"Percentage of responses correct (3 S.F): {count_correct_responses(IN_FILE, phone_dict, email_dict, charity_dict, interactive):.3}")
 
 if __name__ == "__main__":
-    main()
+    print(get_paragraph_text(IN_FILE))
+    #main()
 
