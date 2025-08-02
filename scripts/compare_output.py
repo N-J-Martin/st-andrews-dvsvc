@@ -7,6 +7,7 @@ import argparse, sys
 EXPECTED_FILE = "../resource/expected_output.csv"
 IN_FILE = "extracted_data.csv"
 
+
 def standardise_phone_number(x):
    try:
       return phonenumbers.format_number(phonenumbers.parse(str(x), "GB"), phonenumbers.PhoneNumberFormat.E164)
@@ -99,10 +100,10 @@ def get_response_details(file: str) -> tuple[dict, dict, dict]:
 
 
 # reads response file, collects et of phone numbers, email addresses and charity numbers to compare with expected.
-def count_correct_responses(exp_phone_dict: dict, exp_email_dict: dict, exp_charity_dict: dict, new_phone_dict: dict, new_email_dict: dict, new_charity_dict: dict,  interactive: bool ) -> float:
+def count_correct_responses(exp_phone_dict: dict, exp_email_dict: dict, exp_charity_dict: dict, new_phone_dict: dict, new_email_dict: dict, new_charity_dict: dict,  interactive: bool, log: bool ) -> float:
     correct = 0
     counted = 0
-    
+    LOGS = ""
     # new_phone_dict, new_email_dict and new_charity_dict should contain the same keys.
     for k in new_phone_dict.keys():
         # check key also in expected file before comparing
@@ -110,28 +111,30 @@ def count_correct_responses(exp_phone_dict: dict, exp_email_dict: dict, exp_char
             counted += 1    
             passed = False
             if exp_phone_dict[k] != new_phone_dict[k]:
-                print(f"Expected: {exp_phone_dict[k]}")
-                print(f"Actual: {new_phone_dict[k]}")
-                print()
+                LOGS = LOGS + f"Expected: {exp_phone_dict[k]}\n"
+                LOGS = LOGS + f"Actual: {new_phone_dict[k]}\n\n"
             elif exp_email_dict[k] != new_email_dict[k]:
-                print(f"Expected: {exp_email_dict[k]}")
-                print(f"Actual: {new_email_dict[k]}")
-                print()
+                LOGS = LOGS + f"Expected: {exp_email_dict[k]}\n"
+                LOGS = LOGS + f"Actual: {new_email_dict[k]}\n\n"
             elif exp_charity_dict[k] != new_charity_dict[k]:
-                print(f"Expected: {exp_charity_dict[k]}")
-                print(f"Actual: {new_charity_dict[k]}")
-                print()
+                LOGS = LOGS + f"Expected: {exp_charity_dict[k]}\n"
+                LOGS = LOGS + f"Actual: {new_charity_dict[k]}\n\n"
+
             else:
                 correct += 1
                 passed = True
 
             # interactive provides option to manually mark responses as correct
             if not passed and interactive:
+                print(LOGS)
+                LOGS = ""
                 override = input(f"Override {k}? (Y/N)")
                 if override.upper()[0] == 'Y':
                     correct+=1
                 print("============")
 
+    if log:
+        print(LOGS)
     # return percentage of correct responses at the end
     return (correct / counted)*100
 
@@ -142,21 +145,23 @@ def get_paragraph_text(file: str) -> dict:
         para_dict[d["url"]] = d["paragraph_text"]
     return para_dict
 
-def check_value_on_page(url:str, targets: list, paragraphs: str) -> bool:
+def check_value_on_page(url:str, targets: list, paragraphs: str, log: bool) -> bool:
     for value in targets:
-        if value is not None and value in paragraphs:
+        if value is not None and value not in paragraphs:
+            if log:
+                print(f"Could not find {value} in {url}.\n")
             return False
-
     return True
     
-def check_details_on_page(phone_dict, email_dict, charity_dict, page_dict) -> float:
+def check_details_on_page(phone_dict: dict, email_dict: dict, charity_dict: dict, page_dict: dict, log:bool) -> float:
     correct = 0
     count = 0 # 1 nan pages
     for url, page in page_dict.items():
         if not pd.isnull(page):
             count += 1
-            if check_value_on_page(url, phone_dict[url], page) and check_value_on_page(url, email_dict[url], page) and check_value_on_page(url, charity_dict[url], page):
+            if check_value_on_page(url, phone_dict[url], page, log) and check_value_on_page(url, email_dict[url], page, log) and check_value_on_page(url, charity_dict[url], page, log):
                 correct += 1
+
     return (correct/count)*100
 
 
@@ -167,18 +172,19 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--interactive", action='store_true')
     parser.add_argument("-m", "--mode", required=True, choices=["expected", "inplace"])
+    parser.add_argument("-l", "--logs", action='store_true')
     args = parser.parse_args()
-    print(args)
-    interactive = args.interactive
     
     new_phone_dict, new_email_dict, new_charity_dict = get_response_details(IN_FILE)
     if args.mode == "expected":
         phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
+        result = count_correct_responses(phone_dict, email_dict, charity_dict, new_phone_dict, new_email_dict, new_charity_dict, args.interactive, args.logs)
         # outputs percentage of correct responses (all of phones numbers, emails, and charity numbers match), to 3 significant figures
-        print(f"Percentage of responses correct (3 S.F): {count_correct_responses(phone_dict, email_dict, charity_dict, new_phone_dict, new_email_dict, new_charity_dict, interactive):.3}")
+        print(f"Percentage of responses correct (3 S.F): {result:.3}")
 
     else:
-        print(f"Percentage of responses whose values can be found in input (3 S.F): {check_details_on_page(new_phone_dict, new_email_dict, new_charity_dict, get_paragraph_text(IN_FILE)):.3}")
+        result = check_details_on_page(new_phone_dict, new_email_dict, new_charity_dict, get_paragraph_text(IN_FILE), args.logs)
+        print(f"Percentage of responses whose values can be found in input (3 S.F): {result:.3}")
 
 if __name__ == "__main__":
     main()
