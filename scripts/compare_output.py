@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 import re
 import phonenumbers
-import getopt, sys
+import argparse, sys
 
 EXPECTED_FILE = "../resource/expected_output.csv"
 IN_FILE = "extracted_data.csv"
@@ -127,7 +127,7 @@ def count_correct_responses(exp_phone_dict: dict, exp_email_dict: dict, exp_char
 
             # interactive provides option to manually mark responses as correct
             if not passed and interactive:
-                override = input(f"Override {d["url"]}? (Y/N)")
+                override = input(f"Override {k}? (Y/N)")
                 if override.upper()[0] == 'Y':
                     correct+=1
                 print("============")
@@ -163,35 +163,23 @@ def check_details_on_page(phone_dict, email_dict, charity_dict, page_dict) -> fl
 
 def main():
     interactive = False
-    argList  = sys.argv[1:]
-    options = "i"
-    long_options = "interactive"
     # use -i or --interactive as command line argument to use itneractive mode to manually correct responses that don't match.    
-    try:
-        args, vals = getopt.getopt(argList, options, long_options)
-        for a, v in args:
-            if a in ("-i", "--interactive"):
-                interactive = True
-
-    except getopt.error as err:
-        print (str(err))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--interactive", action='store_true')
+    parser.add_argument("-m", "--mode", required=True, choices=["expected", "inplace"])
+    args = parser.parse_args()
+    print(args)
+    interactive = args.interactive
     
-    phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
     new_phone_dict, new_email_dict, new_charity_dict = get_response_details(IN_FILE)
-    # outputs percentage of correct responses (all of phones numbers, emails, and charity numbers match), to 3 significant figures
-    print(f"Percentage of responses correct (3 S.F): {count_correct_responses(phone_dict, email_dict, charity_dict, new_phone_dict, new_email_dict, new_charity_dict, interactive):.3}")
+    if args.mode == "expected":
+        phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
+        # outputs percentage of correct responses (all of phones numbers, emails, and charity numbers match), to 3 significant figures
+        print(f"Percentage of responses correct (3 S.F): {count_correct_responses(phone_dict, email_dict, charity_dict, new_phone_dict, new_email_dict, new_charity_dict, interactive):.3}")
 
-    print(check_details_on_page(new_phone_dict, new_email_dict, new_charity_dict, get_paragraph_text(IN_FILE)))
+    else:
+        print(f"Percentage of responses whose values can be found in input (3 S.F): {check_details_on_page(new_phone_dict, new_email_dict, new_charity_dict, get_paragraph_text(IN_FILE)):.3}")
+
 if __name__ == "__main__":
-    """para = get_paragraph_text(IN_FILE)
-    phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
-    for u, p in phone_dict.items():
-        try:
-            print(check_value_on_page(u, p, para))
-        except:
-            print("No page stored")
-
-    """
-
     main()
 
