@@ -14,7 +14,6 @@ def standardise_phone_number(x):
    except:
       return None
 
-
 def get_expected_results(file: str) -> tuple[dict, dict, dict]:
     # based on url - as none were corrected
     phone_dict = {}
@@ -74,7 +73,7 @@ def get_response_details(file: str) -> tuple[dict, dict, dict]:
                     else:
                         phone = s['phone'].split(",")
                     for p in phone:
-                        phones.add(standardise_phone_number(p))
+                        phones.add(p)
 
                 if 'email' in s and s['email']:
                     if type(s['email']) == list :
@@ -110,6 +109,7 @@ def count_correct_responses(exp_phone_dict: dict, exp_email_dict: dict, exp_char
         if k in exp_phone_dict and k in exp_email_dict and k in exp_charity_dict and k in new_email_dict and k in new_charity_dict:
             counted += 1    
             passed = False
+            new_phone_dict[k] = set(map(lambda x: standardise_phone_number(x), new_phone_dict[k]))
             if exp_phone_dict[k] != new_phone_dict[k]:
                 LOGS = LOGS + f"Expected: {exp_phone_dict[k]}\n"
                 LOGS = LOGS + f"Actual: {new_phone_dict[k]}\n\n"
@@ -149,7 +149,7 @@ def check_value_on_page(url:str, targets: list, paragraphs: str, log: bool) -> b
     for value in targets:
         if value is not None and value not in paragraphs:
             if log:
-                print(f"Could not find {value} in {url}.\n")
+                print(f"Could not find '{value}' in {url}.\n")
             return False
     return True
     
