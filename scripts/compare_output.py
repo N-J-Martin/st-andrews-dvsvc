@@ -133,7 +133,6 @@ def count_correct_responses(exp_phone_dict: dict, exp_email_dict: dict, exp_char
                 print("============")
 
     # return percentage of correct responses at the end
-    print(counted)
     return (correct / counted)*100
 
 def get_paragraph_text(file: str) -> dict:
@@ -143,16 +142,24 @@ def get_paragraph_text(file: str) -> dict:
         para_dict[d["url"]] = d["paragraph_text"]
     return para_dict
 
-def check_value_on_page(url:str, targets: list, paragraphs: dict) -> bool:
-    if url in paragraphs:
-        page = paragraphs[url]
-        for value in targets:
-            if value in page:
-                return False
+def check_value_on_page(url:str, targets: list, paragraphs: str) -> bool:
+    for value in targets:
+        if value is not None and value in paragraphs:
+            return False
 
-        return True
-    else:
-        raise ValueError("No page provided")
+    return True
+    
+def check_details_on_page(phone_dict, email_dict, charity_dict, page_dict) -> float:
+    correct = 0
+    count = 0 # 1 nan pages
+    for url, page in page_dict.items():
+        if not pd.isnull(page):
+            count += 1
+            if check_value_on_page(url, phone_dict[url], page) and check_value_on_page(url, email_dict[url], page) and check_value_on_page(url, charity_dict[url], page):
+                correct += 1
+    return (correct/count)*100
+
+
 
 def main():
     interactive = False
@@ -174,6 +181,7 @@ def main():
     # outputs percentage of correct responses (all of phones numbers, emails, and charity numbers match), to 3 significant figures
     print(f"Percentage of responses correct (3 S.F): {count_correct_responses(phone_dict, email_dict, charity_dict, new_phone_dict, new_email_dict, new_charity_dict, interactive):.3}")
 
+    print(check_details_on_page(new_phone_dict, new_email_dict, new_charity_dict, get_paragraph_text(IN_FILE)))
 if __name__ == "__main__":
     """para = get_paragraph_text(IN_FILE)
     phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
