@@ -50,22 +50,22 @@ def get_expected_results(file: str) -> tuple[dict, dict, dict]:
 
     return phone_dict, email_dict, charity_dict
 
-
-# reads response file, collects et of phone numbers, email addresses and charity numbers to compare with expected.
-def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, charity_dict: dict, interactive: bool ) -> float:
-    correct = 0
-    counted = 0
+def get_response_details(file: str) -> tuple[dict, dict, dict]:
+    phone_dict = {}
+    email_dict = {}
+    charity_dict = {}
     response = pd.read_csv(file, usecols=["url", "charity_numbers","summary","services", "charity_name"] )
 
     for i, d in response.iterrows():
-        # only checks urls in expected output
-        if d["url"] in phone_dict: 
-            counted += 1
-            service_list = ast.literal_eval(d["services"])
-            phones = set()
-            emails = set()
-            charity_nums = []
+        
+        
+        phones = set()
+        emails = set()
+        charity_nums = []
 
+    
+        if not pd.isnull(d["services"]): 
+            service_list = ast.literal_eval(d["services"])
             for s in service_list:
                 if 'phone' in s and s['phone']:
                     if type(s['phone']) == list :
@@ -83,23 +83,43 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
                     for e in email:
                         if e:
                             emails.add(e.strip())
-            if d["charity_numbers"] == "nan":
-                charity_nums = ast.literal_eval(d["charity_numbers"])
-                charity_nums = list(charity_nums.values())
-                charity_nums = list(filter(lambda x: x != None and x != "", charity_nums))
 
+        if not pd.isnull(d["charity_numbers"]):
+            charity_nums = ast.literal_eval(d["charity_numbers"])
+            charity_nums = list(charity_nums.values())
+            charity_nums = list(filter(lambda x: x != None and x != "", charity_nums))
+
+        phone_dict[d["url"]] = phones.copy()
+        email_dict[d["url"]] = emails.copy()
+        charity_dict[d["url"]] = charity_nums.copy()
+
+    return phone_dict, email_dict, charity_dict
+
+
+
+
+# reads response file, collects et of phone numbers, email addresses and charity numbers to compare with expected.
+def count_correct_responses(exp_phone_dict: dict, exp_email_dict: dict, exp_charity_dict: dict, new_phone_dict: dict, new_email_dict: dict, new_charity_dict: dict,  interactive: bool ) -> float:
+    correct = 0
+    counted = 0
+    
+    # new_phone_dict, new_email_dict and new_charity_dict should contain the same keys.
+    for k in new_phone_dict.keys():
+        # check key also in expected file before comparing
+        if k in exp_phone_dict and k in exp_email_dict and k in exp_charity_dict and k in new_email_dict and k in new_charity_dict:
+            counted += 1    
             passed = False
-            if phone_dict[d["url"]] != phones:
-                print(f"Expected: {phone_dict[d["url"]]}")
-                print(f"Actual: {phones}")
+            if exp_phone_dict[k] != new_phone_dict[k]:
+                print(f"Expected: {exp_phone_dict[k]}")
+                print(f"Actual: {new_phone_dict[k]}")
                 print()
-            elif email_dict[d["url"]] != emails:
-                print(f"Expected: {email_dict[d["url"]]}")
-                print(f"Actual: {emails}")
+            elif exp_email_dict[k] != new_email_dict[k]:
+                print(f"Expected: {exp_email_dict[k]}")
+                print(f"Actual: {new_email_dict[k]}")
                 print()
-            elif charity_dict[d["url"]] != charity_nums:
-                print(f"Expected: {charity_dict[d["url"]]}")
-                print(f"Actual: {charity_nums}")
+            elif exp_charity_dict[k] != new_charity_dict[k]:
+                print(f"Expected: {exp_charity_dict[k]}")
+                print(f"Actual: {new_charity_dict[k]}")
                 print()
             else:
                 correct += 1
@@ -113,6 +133,7 @@ def count_correct_responses(file: str, phone_dict: dict, email_dict: dict, chari
                 print("============")
 
     # return percentage of correct responses at the end
+    print(counted)
     return (correct / counted)*100
 
 def get_paragraph_text(file: str) -> dict:
@@ -149,11 +170,12 @@ def main():
         print (str(err))
     
     phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
+    new_phone_dict, new_email_dict, new_charity_dict = get_response_details(IN_FILE)
     # outputs percentage of correct responses (all of phones numbers, emails, and charity numbers match), to 3 significant figures
-    print(f"Percentage of responses correct (3 S.F): {count_correct_responses(IN_FILE, phone_dict, email_dict, charity_dict, interactive):.3}")
+    print(f"Percentage of responses correct (3 S.F): {count_correct_responses(phone_dict, email_dict, charity_dict, new_phone_dict, new_email_dict, new_charity_dict, interactive):.3}")
 
 if __name__ == "__main__":
-    para = get_paragraph_text(IN_FILE)
+    """para = get_paragraph_text(IN_FILE)
     phone_dict, email_dict, charity_dict = get_expected_results(EXPECTED_FILE)
     for u, p in phone_dict.items():
         try:
@@ -161,7 +183,7 @@ if __name__ == "__main__":
         except:
             print("No page stored")
 
+    """
 
-
-    #main()
+    main()
 
