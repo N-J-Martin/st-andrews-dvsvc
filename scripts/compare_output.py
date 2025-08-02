@@ -145,21 +145,29 @@ def get_paragraph_text(file: str) -> dict:
         para_dict[d["url"]] = d["paragraph_text"]
     return para_dict
 
-def check_value_on_page(url:str, targets: list, paragraphs: str, log: bool) -> bool:
+def check_value_on_page(url:str, targets: list, paragraphs: str,interactive: bool,  log: bool) -> bool:
     for value in targets:
         if value is not None and value not in paragraphs:
-            if log:
+            if log or interactive:
                 print(f"Could not find '{value}' in {url}.\n")
-            return False
+                if interactive:
+                    override = input(f"Override {url}? (Y/N)")
+                    print("============")
+                    if override.upper()[0] != 'Y':
+                        return False
+                   
+
+                else:
+                    return False
     return True
     
-def check_details_on_page(phone_dict: dict, email_dict: dict, charity_dict: dict, page_dict: dict, log:bool) -> float:
+def check_details_on_page(phone_dict: dict, email_dict: dict, charity_dict: dict, page_dict: dict, interactive: bool, log:bool) -> float:
     correct = 0
     count = 0 # 1 nan pages
     for url, page in page_dict.items():
         if not pd.isnull(page):
             count += 1
-            if check_value_on_page(url, phone_dict[url], page, log) and check_value_on_page(url, email_dict[url], page, log) and check_value_on_page(url, charity_dict[url], page, log):
+            if check_value_on_page(url, phone_dict[url], page, interactive, log) and check_value_on_page(url, email_dict[url], page, interactive,  log) and check_value_on_page(url, charity_dict[url], page, interactive, log):
                 correct += 1
 
     return (correct/count)*100
@@ -183,7 +191,7 @@ def main():
         print(f"Percentage of responses correct (3 S.F): {result:.3}")
 
     else:
-        result = check_details_on_page(new_phone_dict, new_email_dict, new_charity_dict, get_paragraph_text(IN_FILE), args.logs)
+        result = check_details_on_page(new_phone_dict, new_email_dict, new_charity_dict, get_paragraph_text(IN_FILE), args.interactive, args.logs)
         print(f"Percentage of responses whose values can be found in input (3 S.F): {result:.3}")
 
 if __name__ == "__main__":
