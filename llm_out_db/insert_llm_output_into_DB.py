@@ -44,14 +44,16 @@ if __name__ == "__main__":
    """
     df = merge(FILE)
     all_locs = []
-    service = 1
+    service_count = 1
     for row in df.itertuples():
       try:
+         # insert charity
          with conn:
             accessors.insert_charity(conn, str(row.url_corrected).strip(), str(row.charity_name_corrected).strip(), str(row.summary_corrected).strip())
-            charity_nums = ast.literal_eval(row.charity_numbers_corrected)
-
-      
+            
+         
+         # insert charity nums
+         charity_nums = ast.literal_eval(row.charity_numbers_corrected)
          for c in charity_nums:
             if charity_nums[c] is not None and charity_nums[c] != "":
                try:
@@ -60,6 +62,15 @@ if __name__ == "__main__":
                except Exception as e:
                   print(f"Error: {e}")
 
+         # insert service
+         services = ast.literal_eval(row.services_corrected)
+         for s in services:
+            service_count += 1
+            try:
+               with conn:
+                  accessors.insert_service(conn, row.url_corrected, service_count, s["description"])
+            except Exception as e:
+                  print(f"Error: {e}")
             """phones = str(row.phone_corrected).split(",")
             for p in phones:
                if p != "nan":

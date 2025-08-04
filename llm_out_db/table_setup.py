@@ -42,7 +42,7 @@ def create_charity_num_table( conn: psycopg2.extensions.connection):
         DROP TABLE IF EXISTS charity_num CASCADE;
         CREATE TABLE charity_num(
         url VARCHAR(2048) REFERENCES charity(url),
-        charity_number VARCHAR(8),
+        charity_number VARCHAR(8) NOT NULL,
         government varchar(2048) NOT NULL,
         PRIMARY KEY (url, charity_number),
         CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?'),
@@ -108,8 +108,8 @@ def create_location_table( conn: psycopg2.extensions.connection):
 def create_service_location_table( conn: psycopg2.extensions.connection):
     with conn.cursor() as cursor:
         cursor.execute("""
-        DROP TABLE IF EXISTS charity_location CASCADE;
-        CREATE TABLE charity_location(
+        DROP TABLE IF EXISTS service_location CASCADE;
+        CREATE TABLE service_location(
           url VARCHAR(2048),
           service_id INT,
           id INT REFERENCES location(id),
