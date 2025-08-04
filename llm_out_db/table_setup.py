@@ -18,7 +18,23 @@ def create_charity_table( conn: psycopg2.extensions.connection):
     
     LOGGER.info("Attempted to create 'charity' table")
 
-
+def create_service_table(conn: psycopg2.extensions.connection):
+    with conn.cursor() as cursor:
+        cursor.execute("""
+            DROP TABLE IF EXISTS service CASCADE;
+            CREATE TABLE service(
+                url VARCHAR(2048) REFERENCES charity(url),
+                service_id INT,
+                description VARCHAR(2048),
+                PRIMARY KEY (url, service_id)
+            );
+                       """)
+        
+        
+        conn.commit()
+    
+    LOGGER.info("Attempted to create 'service' table")
+        
 def create_charity_num_table( conn: psycopg2.extensions.connection):
     # improve charity number regex - current 1-8 alphanumeric digits
     with conn.cursor() as cursor:
@@ -44,9 +60,11 @@ def create_phone_num_table( conn: psycopg2.extensions.connection):
         cursor.execute("""
         DROP TABLE IF EXISTS phone_num CASCADE;
         CREATE TABLE phone_num(
-         url VARCHAR(2048) REFERENCES charity(url),
+         url VARCHAR(2048),
+         service_id INT,    
          phone_number VARCHAR(30),
-         PRIMARY KEY(url, phone_number),
+         FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
+         PRIMARY KEY(url, service_id, phone_number),
          CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?'),
          CHECK ( phone_number ~ '\+[0-9]{0,15}' )
         );""")
@@ -61,12 +79,14 @@ def create_email_table( conn: psycopg2.extensions.connection):
         cursor.execute("""
         DROP TABLE IF EXISTS email CASCADE;
         CREATE TABLE email(
-         url VARCHAR(2048) REFERENCES charity(url),
+         url VARCHAR(2048),
+         service_id INT,
          email VARCHAR(2048),
-         PRIMARY KEY(url, email),
+         FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
+         PRIMARY KEY(url, service_id, email),
          CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?'),
          CHECK (email ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')
-        )
+        );
         """)
         conn.commit()
     
@@ -85,30 +105,33 @@ def create_location_table( conn: psycopg2.extensions.connection):
     
     LOGGER.info("Attempted to create 'location' table")
 
-def create_charity_location_table( conn: psycopg2.extensions.connection):
+def create_service_location_table( conn: psycopg2.extensions.connection):
     with conn.cursor() as cursor:
         cursor.execute("""
         DROP TABLE IF EXISTS charity_location CASCADE;
         CREATE TABLE charity_location(
-          url VARCHAR(2048) REFERENCES charity(url),
+          url VARCHAR(2048),
+          service_id INT,
           id INT REFERENCES location(id),
-          PRIMARY KEY(url, id),
+          FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
+          PRIMARY KEY(url, service_id, id),
           CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?')
 
         );""")
 
         conn.commit()
     
-    LOGGER.info("Attempted to create 'charity_location' table")
+    LOGGER.info("Attempted to create 'service_location' table")
 
 if __name__ == "__main__":
     LOGGER = get_db_logger()
     conn = connect.connect()
     create_charity_table(conn)
+    create_service_table(conn)
     create_charity_num_table(conn)
     create_phone_num_table(conn)
     create_email_table(conn)
     create_location_table(conn)
-    create_charity_location_table(conn)
+    create_service_location_table(conn)
     conn.close()
 
