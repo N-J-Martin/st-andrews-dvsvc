@@ -7,9 +7,11 @@ A web crawler to discover UK-based domestic violence support services.
  * Charity Register, stored in `resource` folder, with path updated in the `__SCOT_CHARITIES_PATH` variable in `heuristics/dvdvsc_scorers.py`. Retrieved from the [OSCR](https://www.oscr.org.uk/about-charities/search-the-register/download-the-scottish-charity-register/).  © Crown Copyright and database right [2025]. Contains information from the Scottish Charity Register supplied by the Office of the Scottish Charity Regulator and licensed under the Open Government Licence v.3.0. (http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
 
  * Python 3.10 or later
+ * Docker-compose or equivalent container is up-to-date and connected (if using) 
 
 ## Use with Docker
-
+ Set `.env`  with environment variables as per `example.env`. Note, you do not need to use 'DB_HOST' for this section.
+ 
 After building the image with 
 
 `docker compose build`
@@ -29,13 +31,12 @@ Then run:
 * `pgadmin`
 * `ollama` (requires nvidia GPU, but other containers should run even if this doesn't)
 
-This automatically loads environment variables from `.env` in the project directory. Set one up as per `example.env`.
-
-
 
 `docker compose run db pgadmin` 
 
-will only spin up the database and pgAdmin containers. Access pgAdmin from a browser at port 5051, as specified in `compose.yaml`. The hostname of the database will be the container ID of db container (found by `docker compose ps`).
+will only spin up the database and pgAdmin containers.
+
+Access pgAdmin from a browser at port 5051, as specified in `compose.yaml`. The hostname of the database will be the container ID of db container (found by `docker compose ps`).
 
 ## Run just the crawler (without Docker)
 First, create a virtual environment.
@@ -44,7 +45,7 @@ First, create a virtual environment.
 
 Then activate the environment.
 
-(MacOS/Linux) `source venv/bin/activate>`
+(MacOS/Linux) `source venv/bin/activate`
 
 (Windows - cmd) `venv\Scripts\activate.bat`
 
@@ -66,6 +67,8 @@ Specify
 Note: CSV output is only viewable once the crawler has finished. To see in batches, add
 `FEED_EXPORT_BATCH_ITEM_COUNT = N` to `dvsvc_crawl/settings.py`, 
 and run with file name of format `%(batch_id)d-filename%(batch_time)s.csv`.
+
+The web crawler will still try to write to a database (specified by DB_HOST in .env if you would like to connect one), so you may get errors, but a CSV output will still be outputted even so.
 
 Finally, use 
 
@@ -115,7 +118,7 @@ will provide the OpenSSL path, then use it in
 
 `LDFLAGS="-I<openssl-path>/include -L<openssl-path>/lib pip install -r requirements.txt`
 
-Otherwise, use the psycopg2 binary instead, by changing `psycopg2` to `pyscopg2-binary` in `requirements.txt`
+Otherwise, use the psycopg2 binary instead, by changing `psycopg2==2.9.9` to `pyscopg2-binary` in `requirements.txt`
 
 
 
