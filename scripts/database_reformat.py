@@ -3,8 +3,8 @@ import json
 import csv
 
 # Directory containing the JSON files
-directory = "PATH_TO_LLM_OUTPUT"
-output_file = "PATH_TO_extracted_data.csv"
+directory = "../resource/llm_responses"
+output_file = "extracted_data.csv"
 
 # List to hold extracted data
 data = []
@@ -19,11 +19,15 @@ for filename in os.listdir(directory):
                 content = json.load(file)
                 # Extract 'prompt' data
                 url = None
+                paragraph = None
                 if "prompt" in content:
                     try:
                         prompt_data = json.loads(content["prompt"])  # Deserialize if it's a string
                         if isinstance(prompt_data, list) and len(prompt_data) > 0:
                             url = prompt_data[0].get("url")  # Extract URL
+                            paragraph = prompt_data[0].get("paragraph_text")
+                            
+
                     except (json.JSONDecodeError, TypeError):
                         print(f"Error parsing 'prompt' field in file: {filename}")
                 
@@ -33,7 +37,7 @@ for filename in os.listdir(directory):
                         response_data = json.loads(content["response"]["response"])  # Deserialize JSON string
                         if isinstance(response_data, dict):
                             # Combine URL and response data into one row
-                            row = {"url": url}
+                            row = {"url": url, "paragraph_text": paragraph}
                             row.update(response_data)  # Add all keys from 'response'
                             data.append(row)
                     except (json.JSONDecodeError, TypeError):
@@ -50,7 +54,7 @@ if data:
     fieldnames = list(fieldnames)
 
     # Write data to CSV
-    with open(output_file, "w", newline="") as csvfile:
+    with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
