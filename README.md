@@ -54,7 +54,7 @@ In the environment, install requirements.txt (on Lab PCs use psycopg2-binary ins
 
 `pip install -r requirements.txt`
 
-Ensure you have completed a `.env`(Linux/MacOS) or `env.bat`(Windows) as specified in `example.env`. Note, `DB_HOST` will need to be specified too (i.e: as "127.0.0.1"), because the scraper will still try to write to a database. 
+Ensure you have completed a `.env`(Linux/MacOS) or `env.bat`(Windows) as specified in `example.env`. Note, that if you want to output to a database as well as CSV, DB_HOST will need to be specified too (e.g. "127.0.0.1"). If you are not using a database, you will see error/warning messages reported as the application looks for one. Manual setup of a PostgreSQL database is out of scope for these instructions.
 
 Specify 
 
