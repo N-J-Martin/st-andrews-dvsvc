@@ -13,7 +13,7 @@ def create_charity_table( conn: psycopg2.extensions.connection):
         url VARCHAR({MAX_STR_LENGTH}) PRIMARY KEY,
         name VARCHAR ({MAX_STR_LENGTH}) NOT NULL,
         summary VARCHAR({MAX_STR_LENGTH}),
-        CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?')
+        CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?')
         );""")
 
         conn.commit()
@@ -28,9 +28,9 @@ def create_service_table(conn: psycopg2.extensions.connection):
                 url VARCHAR({MAX_STR_LENGTH}) REFERENCES charity(url),
                 service_id INT,
                 description VARCHAR({MAX_STR_LENGTH}),
-                PRIMARY KEY (url, service_id)
-            );
-                       """)
+                PRIMARY KEY (url, service_id),
+                CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?')
+            );""")
         
         
         conn.commit()
@@ -47,9 +47,9 @@ def create_charity_num_table( conn: psycopg2.extensions.connection):
         charity_number VARCHAR({CHARITY_NUM_LENGTH}) NOT NULL,
         government varchar({MAX_STR_LENGTH}) NOT NULL,
         PRIMARY KEY (url, charity_number),
-        CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?'),
+        CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?'),
         CHECK (government = 'england_wales' OR government = 'scotland' OR government = 'northern_ireland'),
-        CHECK (charity_number ~ '[a-zA-z0-9]{1,CHARITY_NUM_LENGTH}')
+        CHECK (charity_number ~ '[a-zA-z0-9]{{1,{CHARITY_NUM_LENGTH}}}')
         );""")
 
         conn.commit()
@@ -67,8 +67,8 @@ def create_phone_num_table( conn: psycopg2.extensions.connection):
          phone_number VARCHAR({PHONE_LENGTH}),
          FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
          PRIMARY KEY(url, service_id, phone_number),
-         CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?'),
-         CHECK ( phone_number ~ '\+[0-9]{0,15}' )
+         CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?'),
+         CHECK ( phone_number ~ '\+[0-9]{{0,15}}' )
         );""")
 
         conn.commit()
@@ -86,8 +86,8 @@ def create_email_table( conn: psycopg2.extensions.connection):
          email VARCHAR({MAX_STR_LENGTH}),
          FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
          PRIMARY KEY(url, service_id, email),
-         CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?'),
-         CHECK (email ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')
+         CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?'),
+         CHECK (email ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{{2,}}$')
         );
         """)
         conn.commit()
@@ -117,7 +117,7 @@ def create_service_location_table( conn: psycopg2.extensions.connection):
           id INT REFERENCES location(id),
           FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
           PRIMARY KEY(url, service_id, id),
-          CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?/[a-zA-Z0-9]{2,}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{2,}(.[a-zA-Z]{2,})(.[a-zA-Z]{2,})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}.[a-zA-Z0-9]{2,}(.[a-zA-Z0-9]{2,})?')
+          CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?')
 
         );""")
 
