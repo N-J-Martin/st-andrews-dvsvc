@@ -4,62 +4,101 @@ import phonenumbers
 import ast
 
 from llm_setup import get_db_logger, connect, accessors
+FILE = ""
 
+# returns phone number in standardised E164 format
 def standardise_phone_number(x):
    try:
       return phonenumbers.format_number(phonenumbers.parse(str(x), "GB"), phonenumbers.PhoneNumberFormat.E164)
    except:
       return "nan"
 
+# merges corrections to replace incorrect llm values
+def merge(file: str):
+    df = pd.read_csv(file, usecols=["url", "charity_numbers", "summary", "charity_name", "services", "charity_numbers_corrected","summary_corrected","services_corrected", "charity_name_corrected", "url_corrected"] )
+    df["url_corrected"] = df["url_corrected"].fillna(df["url"])
+    df["charity_numbers_corrected"] = df["charity_numbers_corrected"].fillna(df["charity_numbers"])
+    df["summary_corrected"] = df["summary_corrected"].fillna(df["summary"])
+    df["services_corrected"] = df["services_corrected"].fillna(df["services"])
+    df["charity_name_corrected"] = df["charity_name_corrected"].fillna(df["charity_name"])
+    df = df[["charity_numbers_corrected","summary_corrected","services_corrected", "charity_name_corrected", "url_corrected"]]
+
+    return df
+
 if __name__ == "__main__":
     LOGGER = get_db_logger()
     conn = connect.connect()
   
-    #accessors.insert_charity(conn,  "www.test.com", "test", "test" )
     # need to clean up csv file - have to merge corrected with original, so all values are correct. corrected columns only contain corrections where necessary
-    df = pd.read_csv("extracted_data.csv", usecols=["url", "charity_numbers", "summary", "phone", "email", "locations", "name", "url_corrected","charity_numbers_corrected","summary_corrected","phone_corrected","email_corrected","locations_corrected","name_corrected"] )
-    df["url_corrected"] = df["url_corrected"].fillna(df["url"])
-    df["charity_numbers_corrected"] = df["charity_numbers_corrected"].fillna(df["charity_numbers"])
-    df["summary_corrected"] = df["summary_corrected"].fillna(df["summary"])
-    df["phone_corrected"] = df["phone_corrected"].fillna(df["phone"])
-    df["email_corrected"] = df["email_corrected"].fillna(df["email"])
-    df["locations_corrected"] = df["locations_corrected"].fillna(df["locations"])
-    df["name_corrected"] = df["name_corrected"].fillna(df["name"])
-
-   #standardise telephone using https://pypi.org/project/phonenumbers/
-    df["phone_corrected"] = df["phone_corrected"].map(lambda x: standardise_phone_number(x) )
-    
-    df = df[["url_corrected","charity_numbers_corrected","summary_corrected","phone_corrected","email_corrected","locations_corrected","name_corrected"]]
-   
+    df = merge(FILE)
     all_locs = []
+   
     for row in df.itertuples():
+      service_count = 0
       try:
-         accessors.insert_charity(conn, str(row.url_corrected).strip(), str(row.name_corrected).strip(), str(row.summary_corrected).strip())
+         # insert charity
+         with conn:
+            accessors.insert_charity(conn, str(row.url_corrected).strip(), str(row.charity_name_corrected).strip(), str(row.summary_corrected).strip())
+            
+         
+         # insert charity nums
          charity_nums = ast.literal_eval(row.charity_numbers_corrected)
          for c in charity_nums:
-            if charity_nums[c] is not None:
-               accessors.insert_charity_number(conn, row.url_corrected, charity_nums[c], c)
-         
-         phones = str(row.phone_corrected).split(",")
-         for p in phones:
-            if p != "nan":
-               accessors.insert_phone_num(conn, str(row.url_corrected).strip(), str(p).strip())
-      
-         emails = str(row.email_corrected).split(",")
-         for e in emails:
-            if e != "nan":
-               accessors.insert_email(conn, str(row.url_corrected).strip(), str(e).strip())
-         
-         locations = ast.literal_eval(row.locations_corrected)
-         for l in locations:
-            if l not in all_locs:
-               all_locs.append(l)
-               accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip())
+            if charity_nums[c] is not None and charity_nums[c] != "":
+               try:
+                  with conn:
+                     accessors.insert_charity_number(conn, row.url_corrected.strip(), charity_nums[c].strip(), c.strip())
+               except Exception as e:
+                  print(f"Error: {e}")
 
-            accessors.insert_charity_location(conn, str(row.url_corrected).strip(), all_locs.index(l))
+         # insert service
+         services = ast.literal_eval(row.services_corrected)
+         for s in services:
+            service_count += 1
+            try:
+               with conn:
+                  accessors.insert_service(conn, row.url_corrected.strip(), service_count, s["description"])
+               # insert phone numbers for service
+               if 'phone' in s and s['phone']:
+                  phone = s['phone'].split(",")
+                  for p in phone:
+                     try: 
+                        with conn:
+                           accessors.insert_phone_num(conn, row.url_corrected.strip(), service_count, standardise_phone_number(p))
+                     except Exception as e:
+                        print(f"Error: {e}")
+
+               # insert emails for service
+               if 'email' in s and s['email']:
+                  email = s['email'].split(",")
+                  for e in email:
+                     try: 
+                        with conn:
+                           accessors.insert_email(conn, row.url_corrected.strip(), service_count, e.strip())
+                     except Exception as e:
+                        print(f"Error: {e}")
+
+               # add locations of service, add to location table if not seen already
+               if 'locations' in s and s['locations']:
+                  try:
+                     for l in s['locations']:
+                        if l not in all_locs:
+                           all_locs.append(l)
+                           with conn:
+                              accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip())
+
+                        with conn:
+                           accessors.insert_service_location(conn, str(row.url_corrected).strip(), service_count, all_locs.index(l))
+
+                  except Exception as e:
+                     print(f"Error: {e}")
+
+            except Exception as e:
+                  print(f"Error: {e}")
 
       except Exception as e:
          print(f"Error: {e}")
+
       
 
     conn.close()
