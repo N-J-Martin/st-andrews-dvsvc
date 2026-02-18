@@ -2,9 +2,12 @@ import psycopg2
 import pandas as pd
 import phonenumbers
 import ast
-
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
 from llm_setup import get_db_logger, connect, accessors
-FILE = ""
+FILE = "extracted_data.csv"
+USER_AGENT = "DASAD/0.1"
+DELAY = 1
 
 # returns phone number in standardised E164 format
 def standardise_phone_number(x):
@@ -28,6 +31,8 @@ def merge(file: str):
 if __name__ == "__main__":
     LOGGER = get_db_logger()
     conn = connect.connect()
+    geolocator = Nominatim(user_agent=USER_AGENT)
+    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=DELAY)
   
     # need to clean up csv file - have to merge corrected with original, so all values are correct. corrected columns only contain corrections where necessary
     df = merge(FILE)
@@ -84,8 +89,11 @@ if __name__ == "__main__":
                      for l in s['locations']:
                         if l not in all_locs:
                            all_locs.append(l)
+                           #converts string to latitude/longitude coordinations, with rate limiting
+                           location = geocode(l)
+                           print(location.latitude)
                            with conn:
-                              accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip())
+                              accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip(), location.latitude, location.longitude)
 
                         with conn:
                            accessors.insert_service_location(conn, str(row.url_corrected).strip(), service_count, all_locs.index(l))

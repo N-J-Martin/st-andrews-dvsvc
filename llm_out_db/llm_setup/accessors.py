@@ -126,13 +126,18 @@ def insert_location(
     conn: psycopg2.extensions.connection,
     id: int,
     name: str,
+    lat: float,
+    long: float
 ):
+    
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into location (id, name) values (%s, %s)",
+            "insert into location (id, name, latitude, longitude) values (%s, %s, %s, %s)",
             (
                 id,
-                name
+                name,
+                lat,
+                long
             ),
         )
 
