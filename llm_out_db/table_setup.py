@@ -101,8 +101,8 @@ def create_location_table( conn: psycopg2.extensions.connection):
         CREATE TABLE location(
          id INT PRIMARY KEY ,
          name VARCHAR({MAX_STR_LENGTH}),
-         latitude FLOAT,
-         longitude FLOAT
+         latitude VARCHAR({MAX_STR_LENGTH}),
+         longitude VARCHAR({MAX_STR_LENGTH})
         );""")
 
         conn.commit()

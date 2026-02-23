@@ -126,8 +126,8 @@ def insert_location(
     conn: psycopg2.extensions.connection,
     id: int,
     name: str,
-    lat: float,
-    long: float
+    lat: str,
+    long: str
 ):
     
     with conn.cursor() as cursor:
@@ -138,6 +138,27 @@ def insert_location(
                 name,
                 lat,
                 long
+            ),
+        )
+
+        conn.commit()
+
+    LOGGER.info(
+        "Attempted to insert location [name=%s]", name,
+    )
+
+def insert_location_no_coords(
+    conn: psycopg2.extensions.connection,
+    id: int,
+    name: str
+):
+    
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "insert into location (id, name, latitude, longitude) values (%s, %s, NULL, NULL)",
+            (
+                id,
+                name,     
             ),
         )
 

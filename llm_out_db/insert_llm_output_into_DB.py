@@ -28,6 +28,14 @@ def merge(file: str):
 
     return df
 
+def convertLocation(loc: str):
+   conv = geocode(loc, exactly_one=True)
+   if conv is not None:
+      print("HELLO")
+      print(conv.latitude)
+      return conv.latitude, conv.longitude
+   return None, None
+
 if __name__ == "__main__":
     LOGGER = get_db_logger()
     conn = connect.connect()
@@ -90,10 +98,13 @@ if __name__ == "__main__":
                         if l not in all_locs:
                            all_locs.append(l)
                            #converts string to latitude/longitude coordinations, with rate limiting
-                           location = geocode(l)
-                           print(location.latitude)
+                           lat, long = convertLocation(l)
+
                            with conn:
-                              accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip(), location.latitude, location.longitude)
+                              if lat is not None and long is not None:
+                                 accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip(), lat, long)
+                              else:
+                                 accessors.insert_location_no_coords(conn, len(all_locs) -1, str(l).strip())
 
                         with conn:
                            accessors.insert_service_location(conn, str(row.url_corrected).strip(), service_count, all_locs.index(l))
