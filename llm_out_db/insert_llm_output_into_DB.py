@@ -29,12 +29,14 @@ def merge(file: str):
     return df
 
 def convertLocation(loc: str):
-   conv = geocode(loc, exactly_one=True)
-   if conv is not None:
-      print("HELLO")
-      print(conv.latitude)
-      return conv.latitude, conv.longitude
-   return None, None
+   try:
+      conv = geocode(loc, exactly_one=True)
+      if conv is not None:
+         return conv.latitude, conv.longitude
+      return None, None
+   except Exception as e:
+      print(f"Error: {e}")
+      return None, None
 
 if __name__ == "__main__":
     LOGGER = get_db_logger()
