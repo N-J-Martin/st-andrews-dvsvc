@@ -18,4 +18,6 @@ With data in format
   
 
   As well as corrected fields url_corrected, charity_numbers_corrected, summary_corrected, services_corrected and name_corrected (only used when corrections made).
+
+  Uses Neomatim (https://nominatim.org/) via GeoPy (https://geopy.readthedocs.io/en/stable/) to find latitude/longitude coordimates of locations. 
   
