@@ -50,7 +50,7 @@ def getLocations(location: str, distance: int):
             cursor.execute("""SELECT * from location
                             WHERE ((cast (latitude as double precision)) between %s and %s) and ( (cast(longitude as double precision)) between %s and %s);
                             """, (southLat, northLat, westLong, eastLong))
-            print(cursor.fetchall())
+            return cursor.fetchall()
             conn.commit()
 
         conn.close()

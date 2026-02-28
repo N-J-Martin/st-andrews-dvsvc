@@ -1,0 +1,12 @@
+<h1> Enter Location</h1>
+<form method="post">
+       <input type="text" name="loc"
+               placeholder="location"
+               value="{{ request.form['loc'] }}"></input>
+        <input type="number" name="dist"
+               placeholder="distance"
+               value="{{ request.form['dist'] }}"></input>
+        <button type="submit">Submit</button>
+        
+</form>
+<p>{{current_loc}}</p>
