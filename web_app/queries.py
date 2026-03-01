@@ -39,6 +39,7 @@ def getLocations(location: str, distance: int):
     lat, long = getCoordinates(location)
     if lat is None and long is None:
         print(f"Error: No coordinates for location: {location}")
+        return []
     else:
         northLat = geopy.distance.distance(distance).destination((lat, long), bearing=0).latitude
         southLat = geopy.distance.distance(distance).destination((lat, long), bearing=180).latitude
@@ -47,8 +48,19 @@ def getLocations(location: str, distance: int):
 
         conn = connect()
         with conn.cursor() as cursor:
-            cursor.execute("""SELECT * from location
-                            WHERE ((cast (latitude as double precision)) between %s and %s) and ( (cast(longitude as double precision)) between %s and %s);
+            cursor.execute("""SELECT charity.name, charity.url, service.description, location.name, phone_num.phone_number, email.email 
+                            From charity
+                            INNER JOIN service 
+                            ON charity.url = service.url
+                            INNER JOIN phone_num 
+                            ON service.url = phone_num.url and service.service_id = phone_num.service_id
+                            INNER JOIN email
+                            ON  service.url = email.url and service.service_id = email.service_id
+                            INNER JOIN service_location 
+                            ON  service.url = service_location.url and service.service_id = service_location.service_id
+                            INNER JOIN location
+                            ON service_location.id = location.id
+                            WHERE ((cast (location.latitude as double precision)) between %s and %s) and ( (cast(location.longitude as double precision)) between %s and %s);
                             """, (southLat, northLat, westLong, eastLong))
             return cursor.fetchall()
             conn.commit()
@@ -66,4 +78,4 @@ def getCoordinates(location: str):
       return None, None
 
 if __name__ == "__main__":
-    getLocations("London", 10)
+    print(getLocations("London", 10))

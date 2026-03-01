@@ -7,6 +7,12 @@ def location_filter():
         current_loc = request.form["loc"]
         current_dist = request.form["dist"]
         nearby = queries.getLocations(current_loc, int(current_dist))
-        return f"<p>{nearby}</p>"
+        outstr = ""
+        for l in nearby:
+            outstr = outstr + f"<p>{l}</p>"
+
+        if nearby == []:
+            return "<h1>Error searching location</h1>"
+        return outstr
 
     return render_template("index.html")
