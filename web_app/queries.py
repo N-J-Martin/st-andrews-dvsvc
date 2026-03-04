@@ -77,5 +77,53 @@ def getCoordinates(location: str):
       print(f"Error: {e}")
       return None, None
 
+
+def getServicesByCharityName(name: str):
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+                SELECT DISTINCT service.description, location.name, email.email, phone_num.phone_number
+                FROM charity 
+                INNER JOIN service 
+                ON charity.url = service.url
+                INNER JOIN service_location
+                ON service.url = service_location.url
+                INNER JOIN location
+                on service_location.id = location.id
+                INNER JOIN email
+                on service.url = email.url
+                INNER JOIN phone_num
+                on service.url = phone_num.url
+                WHERE charity.name = %s
+
+            """,
+            (name,)
+        )
+
+        return cursor.fetchall()
+        conn.commit()
+    conn.close()
+
+def get_charity_info_by_name(name: str):
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+                SELECT charity.url, charity.summary, charity_num.charity_number
+                FROM charity 
+                INNER JOIN charity_num
+                ON charity.url = charity_num.url
+                WHERE charity.name = %s
+
+            """,
+            (name,)
+        )
+
+        return cursor.fetchall()
+        conn.commit()
+    conn.close()
+    
 if __name__ == "__main__":
-    print(getLocations("London", 10))
+    print(getServicesByCharityName("Bede House"))
+    print(get_charity_info_by_name("Bede House"))

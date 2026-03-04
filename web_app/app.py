@@ -31,3 +31,42 @@ def location_filter():
         return outstr
 
     return render_template("index.html")
+
+
+@app.route("/charity/<name>")
+def charity_page(name):
+    page = f"<h1>{name}</h1>"
+    charity_info = queries.get_charity_info_by_name(name)[0]
+    charity_details = f"""
+    <div>
+        <a href='{charity_info[0]}'> {charity_info[0]} </a>
+        <br>
+        <br>
+        {charity_info[1]}
+        <br>
+        <br>
+        Charity Number: {charity_info[2]}
+    </div>
+    """
+
+    service_info = queries.getServicesByCharityName(name)
+    service_details = "<h2>Services</h2>"
+    for s in service_info:
+        print(s)
+        service_details = service_details + f"""
+                <div style="outline: thick inset">
+                    description: {s[0]}
+                    <br>
+                    <br>
+                    location: {s[1]}
+                    <br>
+                    phone number: {s[3]}
+                    <br>
+                    email: {s[2]}
+                    <br>
+                    <br>
+                </div>
+                <br>
+        """
+    page = page + charity_details + service_details
+    return page
