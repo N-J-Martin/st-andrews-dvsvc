@@ -9,7 +9,7 @@ def location_filter():
         nearby = queries.getLocations(current_loc, int(current_dist))
         outstr = "<ul>"
         for l in nearby:
-            outstr = outstr + f"""<li><div style="outline: thick inset">
+            outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',name=l[0])}';", style="outline: thick inset"><div >
             <h3>{l[0]}</h3>
             <a href='{l[1]}'> {l[1]} </a>
             <br>
@@ -36,9 +36,10 @@ def location_filter():
 @app.route("/charity/<name>")
 def charity_page(name):
     page = f"<h1>{name}</h1>"
-    charity_info = queries.get_charity_info_by_name(name)[0]
+    charity_info = queries.get_charity_info_by_name(name)
     if charity_info == []:
         return "<h1>Unknown Charity </h1>"
+    charity_info = charity_info[0]
     charity_details = f"""
     <div>
         <a href='{charity_info[0]}'> {charity_info[0]} </a>
