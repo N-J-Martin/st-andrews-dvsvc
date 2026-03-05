@@ -7,9 +7,9 @@ def location_filter():
         current_loc = request.form["loc"]
         current_dist = request.form["dist"]
         nearby = queries.getLocations(current_loc, int(current_dist))
-        outstr = ""
+        outstr = "<ul>"
         for l in nearby:
-            outstr = outstr + f"""<div style="outline: thick inset">
+            outstr = outstr + f"""<li><div style="outline: thick inset">
             <h3>{l[0]}</h3>
             <a href='{l[1]}'> {l[1]} </a>
             <br>
@@ -24,11 +24,11 @@ def location_filter():
             description: {l[2]}
             <br>
 
-            </div>"""
+            </div></li>"""
 
         if nearby == []:
             return "<h1>Error searching location</h1>"
-        return outstr
+        return outstr+"</ul>"
 
     return render_template("index.html")
 
@@ -37,6 +37,8 @@ def location_filter():
 def charity_page(name):
     page = f"<h1>{name}</h1>"
     charity_info = queries.get_charity_info_by_name(name)[0]
+    if charity_info == []:
+        return "<h1>Unknown Charity </h1>"
     charity_details = f"""
     <div>
         <a href='{charity_info[0]}'> {charity_info[0]} </a>
@@ -50,10 +52,11 @@ def charity_page(name):
     """
 
     service_info = queries.getServicesByCharityName(name)
-    service_details = "<h2>Services</h2>"
+    service_details = "<h2>Services</h2><ul>"
     for s in service_info:
         print(s)
         service_details = service_details + f"""
+                <li>
                 <div style="outline: thick inset">
                     description: {s[0]}
                     <br>
@@ -67,6 +70,7 @@ def charity_page(name):
                     <br>
                 </div>
                 <br>
+                </li>
         """
-    page = page + charity_details + service_details
+    page = page + charity_details + service_details+"</ul>"
     return page
