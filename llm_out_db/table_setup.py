@@ -10,7 +10,8 @@ def create_charity_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS charity CASCADE;
         CREATE TABLE charity(
-        url VARCHAR({MAX_STR_LENGTH}) PRIMARY KEY,
+        index INT PRIMARY KEY,
+        url VARCHAR({MAX_STR_LENGTH}),
         name VARCHAR ({MAX_STR_LENGTH}) NOT NULL,
         summary VARCHAR({MAX_STR_LENGTH}),
         CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?')
@@ -25,11 +26,10 @@ def create_service_table(conn: psycopg2.extensions.connection):
         cursor.execute(f"""
             DROP TABLE IF EXISTS service CASCADE;
             CREATE TABLE service(
-                url VARCHAR({MAX_STR_LENGTH}) REFERENCES charity(url),
+                index INT REFERENCES charity(index),
                 service_id INT,
                 description VARCHAR({MAX_STR_LENGTH}),
-                PRIMARY KEY (url, service_id),
-                CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?')
+                PRIMARY KEY (index, service_id)
             );""")
         
         
@@ -43,11 +43,10 @@ def create_charity_num_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS charity_num CASCADE;
         CREATE TABLE charity_num(
-        url VARCHAR({MAX_STR_LENGTH}) REFERENCES charity(url),
+        index INT REFERENCES charity(index),
         charity_number VARCHAR({CHARITY_NUM_LENGTH}) NOT NULL,
         government varchar({MAX_STR_LENGTH}) NOT NULL,
-        PRIMARY KEY (url, charity_number),
-        CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?'),
+        PRIMARY KEY (index, charity_number),
         CHECK (government = 'england_wales' OR government = 'scotland' OR government = 'northern_ireland'),
         CHECK (charity_number ~ '[a-zA-z0-9]{{1,{CHARITY_NUM_LENGTH}}}')
         );""")
@@ -62,12 +61,11 @@ def create_phone_num_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS phone_num CASCADE;
         CREATE TABLE phone_num(
-         url VARCHAR({MAX_STR_LENGTH}),
+         index INT,
          service_id INT,    
          phone_number VARCHAR({PHONE_LENGTH}),
-         FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
-         PRIMARY KEY(url, service_id, phone_number),
-         CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?'),
+         FOREIGN KEY (index, service_id) REFERENCES service(index, service_id),
+         PRIMARY KEY(index, service_id, phone_number),
          CHECK ( phone_number ~ '\+[0-9]{{0,15}}' )
         );""")
 
@@ -81,12 +79,11 @@ def create_email_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS email CASCADE;
         CREATE TABLE email(
-         url VARCHAR({MAX_STR_LENGTH}),
+         index INT,
          service_id INT,
          email VARCHAR({MAX_STR_LENGTH}),
-         FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
-         PRIMARY KEY(url, service_id, email),
-         CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?'),
+         FOREIGN KEY (index, service_id) REFERENCES service(index, service_id),
+         PRIMARY KEY(index, service_id, email),
          CHECK (email ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{{2,}}$')
         );
         """)
@@ -114,13 +111,11 @@ def create_service_location_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS service_location CASCADE;
         CREATE TABLE service_location(
-          url VARCHAR({MAX_STR_LENGTH}),
+          index INT,
           service_id INT,
           id INT REFERENCES location(id),
-          FOREIGN KEY (url, service_id) REFERENCES service(url, service_id),
-          PRIMARY KEY(url, service_id, id),
-          CHECK ( url ~ '(https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?/[a-zA-Z0-9]{{2,}}|((https://www.|http://www.|https://|http://)?[a-zA-Z]{{2,}}(.[a-zA-Z]{{2,}})(.[a-zA-Z]{{2,}})?)|(https://www.|http://www.|https://|http://)?[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}.[a-zA-Z0-9]{{2,}}(.[a-zA-Z0-9]{{2,}})?')
-
+          FOREIGN KEY (index, service_id) REFERENCES service(index, service_id),
+          PRIMARY KEY(index, service_id, id)
         );""")
 
         conn.commit()

@@ -9,14 +9,16 @@ LOGGER = get_db_logger()
 
 def insert_charity(
     conn: psycopg2.extensions.connection,
+    index: int,
     link: str,
     name: str,
     summary: str | None
 ):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into charity (url, name, summary) values (%s, %s, %s)",
+            "insert into charity (index, url, name, summary) values (%s, %s, %s, %s)",
             (
+                index, 
                 link,
                 name, 
                 summary
@@ -31,15 +33,15 @@ def insert_charity(
 
 
 def insert_service(conn: psycopg2.extensions.connection,
-    link: str,
+    index: int,
     id: int,
     description: str | None):
 
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into service (url, service_id, description) values (%s, %s, %s)",
+            "insert into service (index, service_id, description) values (%s, %s, %s)",
             (
-                link,
+                index,
                 id, 
                 description
             ),
@@ -48,21 +50,21 @@ def insert_service(conn: psycopg2.extensions.connection,
         conn.commit()
 
     LOGGER.info(
-        "Attempted to insert service [url=%s, service=%i]", link, id, 
+        "Attempted to insert service [index=%s, service=%i]", index, id, 
     )
 
 
 def insert_charity_number(
     conn: psycopg2.extensions.connection,
-    link: str,
+    index: int,
     charity_num: str,
     government: str
 ):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into charity_num (url, charity_number, government) values (%s, %s, %s)",
+            "insert into charity_num (index, charity_number, government) values (%s, %s, %s)",
             (
-                link,
+                index,
                 charity_num,
                 government
             ),
@@ -71,22 +73,22 @@ def insert_charity_number(
         conn.commit()
 
     LOGGER.info(
-        "Attempted to insert charity_number [url=%s, number=%s]", link, charity_num,
+        "Attempted to insert charity_number [index=%s, number=%s]", index, charity_num,
     )
 
 
 
 def insert_phone_num(
     conn: psycopg2.extensions.connection,
-    link: str,
+    index: int,
     service: int, 
     phone: str
 ):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into phone_num (url, service_id, phone_number) values (%s, %s, %s)",
+            "insert into phone_num (index, service_id, phone_number) values (%s, %s, %s)",
             (
-                link,
+                index,
                 service,
                 phone
             ),
@@ -95,21 +97,21 @@ def insert_phone_num(
         conn.commit()
 
     LOGGER.info(
-        "Attempted to insert phone number [url=%s, service=%i, number=%s]", link, service, phone,
+        "Attempted to insert phone number [index=%s, service=%i, number=%s]", index, service, phone,
     )
 
 
 def insert_email(
     conn: psycopg2.extensions.connection,
-    link: str,
+    index: int,
     service: int, 
     email: str,
 ):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into email (url, service_id, email) values (%s, %s, %s)",
+            "insert into email (index, service_id, email) values (%s, %s, %s)",
             (
-                link,
+                index,
                 service,
                 email
             ),
@@ -118,7 +120,7 @@ def insert_email(
         conn.commit()
 
     LOGGER.info(
-        "Attempted to insert email [url=%s, service=%i, email=%s]", link, service, email,
+        "Attempted to insert email [index=%s, service=%i, email=%s]", index, service, email,
     )
 
 
@@ -171,15 +173,15 @@ def insert_location_no_coords(
 
 def insert_service_location(
     conn: psycopg2.extensions.connection,
-    link: str,
+    index: int,
     service: int,
     loc: int
 ):
     with conn.cursor() as cursor:
         cursor.execute(
-            "insert into service_location (url, service_id,  id) values (%s, %s, %s)",
+            "insert into service_location (index, service_id,  id) values (%s, %s, %s)",
             (
-                link,
+                index,
                 service,
                 loc
             ),
@@ -188,5 +190,5 @@ def insert_service_location(
         conn.commit()
 
     LOGGER.info(
-        "Attempted to insert charity-location [url=%s, service=%i id=%i]", link, service, loc,
+        "Attempted to insert charity-location [index=%s, service=%i id=%i]", index, service, loc,
     )

@@ -48,12 +48,13 @@ if __name__ == "__main__":
     df = merge(FILE)
     all_locs = []
    
+    charity_count = 0
     for row in df.itertuples():
       service_count = 0
       try:
          # insert charity
          with conn:
-            accessors.insert_charity(conn, str(row.url_corrected).strip(), str(row.charity_name_corrected).strip(), str(row.summary_corrected).strip())
+            accessors.insert_charity(conn, charity_count, str(row.url_corrected).strip(), str(row.charity_name_corrected).strip(), str(row.summary_corrected).strip())
             
          
          # insert charity nums
@@ -62,7 +63,7 @@ if __name__ == "__main__":
             if charity_nums[c] is not None and charity_nums[c] != "":
                try:
                   with conn:
-                     accessors.insert_charity_number(conn, row.url_corrected.strip(), charity_nums[c].strip(), c.strip())
+                     accessors.insert_charity_number(conn, charity_count, charity_nums[c].strip(), c.strip())
                except Exception as e:
                   print(f"Error: {e}")
 
@@ -72,14 +73,14 @@ if __name__ == "__main__":
             service_count += 1
             try:
                with conn:
-                  accessors.insert_service(conn, row.url_corrected.strip(), service_count, s["description"])
+                  accessors.insert_service(conn, charity_count, service_count, s["description"])
                # insert phone numbers for service
                if 'phone' in s and s['phone']:
                   phone = s['phone'].split(",")
                   for p in phone:
                      try: 
                         with conn:
-                           accessors.insert_phone_num(conn, row.url_corrected.strip(), service_count, standardise_phone_number(p))
+                           accessors.insert_phone_num(conn,  charity_count, service_count, standardise_phone_number(p))
                      except Exception as e:
                         print(f"Error: {e}")
 
@@ -89,7 +90,7 @@ if __name__ == "__main__":
                   for e in email:
                      try: 
                         with conn:
-                           accessors.insert_email(conn, row.url_corrected.strip(), service_count, e.strip())
+                           accessors.insert_email(conn, charity_count, service_count, e.strip())
                      except Exception as e:
                         print(f"Error: {e}")
 
@@ -109,7 +110,7 @@ if __name__ == "__main__":
                                  accessors.insert_location_no_coords(conn, len(all_locs) -1, str(l).strip())
 
                         with conn:
-                           accessors.insert_service_location(conn, str(row.url_corrected).strip(), service_count, all_locs.index(l))
+                           accessors.insert_service_location(conn, charity_count, service_count, all_locs.index(l))
 
                   except Exception as e:
                      print(f"Error: {e}")
@@ -119,6 +120,8 @@ if __name__ == "__main__":
 
       except Exception as e:
          print(f"Error: {e}")
+
+      charity_count+=1
 
       
 

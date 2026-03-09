@@ -6,10 +6,10 @@ def location_filter():
     if request.method == "POST":
         current_loc = request.form["loc"]
         current_dist = request.form["dist"]
-        nearby = queries.getLocations(current_loc, int(current_dist))
+        nearby = queries.get_locations(current_loc, int(current_dist))
         outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> <ul>"""
         for l in nearby:
-            outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',name=l[0])}';", style="outline: thick inset"><div >
+            outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=l[6])}';", style="outline: thick inset"><div >
             <h3>{l[0]}</h3>
             <a href='{l[1]}'> {l[1]} </a>
             <br>
@@ -33,17 +33,18 @@ def location_filter():
     return render_template("index.html")
 
 
-@app.route("/charity/<name>")
-def charity_page(name):
+@app.route("/charity/<index>")
+def charity_page(index):
     page = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css') }">
 </head>
 <body> 
-<h1>{name}</h1>"""
-    charity_info = queries.get_charity_info_by_name(name)
+"""
+    charity_info = queries.get_charity_info_by_id(index)
     if charity_info == []:
         return "<h1>Unknown Charity </h1>"
     charity_info = charity_info[0]
     charity_details = f"""
+    <h1>{charity_info[3]}</h1>
     <div>
         <a href='{charity_info[0]}'> {charity_info[0]} </a>
         <br>
@@ -55,7 +56,7 @@ def charity_page(name):
     </div>
     """
 
-    service_info = queries.getServicesByCharityName(name)
+    service_info = queries.get_services_by_charity_id(index)
     service_details = "<h2>Services</h2><ul>"
     for s in service_info:
         print(s)

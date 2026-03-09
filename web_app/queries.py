@@ -35,8 +35,8 @@ def connect() -> psycopg2.extensions.connection:
     Points at North, South, East, West calculated by geodesic distance.
     Use these coordinates to filter locations to within this square
 """
-def getLocations(location: str, distance: int):
-    lat, long = getCoordinates(location)
+def get_locations(location: str, distance: int):
+    lat, long = get_coordinates(location)
     if lat is None and long is None:
         print(f"Error: No coordinates for location: {location}")
         return []
@@ -48,16 +48,16 @@ def getLocations(location: str, distance: int):
 
         conn = connect()
         with conn.cursor() as cursor:
-            cursor.execute("""SELECT charity.name, charity.url, service.description, location.name, phone_num.phone_number, email.email 
+            cursor.execute("""SELECT charity.name, charity.url, service.description, location.name, phone_num.phone_number, email.email, charity.index
                             From charity
                             INNER JOIN service 
-                            ON charity.url = service.url
+                            ON charity.index = service.index
                             INNER JOIN phone_num 
-                            ON service.url = phone_num.url and service.service_id = phone_num.service_id
+                            ON service.index = phone_num.index and service.service_id = phone_num.service_id
                             INNER JOIN email
-                            ON  service.url = email.url and service.service_id = email.service_id
+                            ON  service.index = email.index and service.service_id = email.service_id
                             INNER JOIN service_location 
-                            ON  service.url = service_location.url and service.service_id = service_location.service_id
+                            ON  service.index = service_location.index and service.service_id = service_location.service_id
                             INNER JOIN location
                             ON service_location.id = location.id
                             WHERE ((cast (location.latitude as double precision)) between %s and %s) and ( (cast(location.longitude as double precision)) between %s and %s);
@@ -67,7 +67,7 @@ def getLocations(location: str, distance: int):
 
         conn.close()
 
-def getCoordinates(location: str):
+def get_coordinates(location: str):
     try:
       conv = geocode(location, exactly_one=True)
       if conv is not None:
@@ -78,7 +78,7 @@ def getCoordinates(location: str):
       return None, None
 
 
-def getServicesByCharityName(name: str):
+def get_services_by_charity_id(id: int):
     conn = connect()
     with conn.cursor() as cursor:
         cursor.execute(
@@ -86,38 +86,38 @@ def getServicesByCharityName(name: str):
                 SELECT DISTINCT service.description, location.name, email.email, phone_num.phone_number
                 FROM charity 
                 INNER JOIN service 
-                ON charity.url = service.url
+                ON charity.index = service.index
                 INNER JOIN service_location
-                ON service.url = service_location.url
+                ON service.index = service_location.index and service.service_id = service_location.service_id
                 INNER JOIN location
                 on service_location.id = location.id
                 INNER JOIN email
-                on service.url = email.url
+                on service.index = email.index and  service.service_id = email .service_id
                 INNER JOIN phone_num
-                on service.url = phone_num.url
-                WHERE charity.name = %s
+                on service.index = phone_num.index and service.service_id = phone_num.service_id
+                WHERE charity.index = %s
 
             """,
-            (name,)
+            (id,)
         )
 
         return cursor.fetchall()
         conn.commit()
     conn.close()
 
-def get_charity_info_by_name(name: str):
+def get_charity_info_by_id(index: str):
     conn = connect()
     with conn.cursor() as cursor:
         cursor.execute(
             """
-                SELECT charity.url, charity.summary, charity_num.charity_number
+                SELECT charity.url, charity.summary, charity_num.charity_number, charity.name
                 FROM charity 
                 INNER JOIN charity_num
-                ON charity.url = charity_num.url
-                WHERE charity.name = %s
+                ON charity.index = charity_num.index
+                WHERE charity.index = %s
 
             """,
-            (name,)
+            (index,)
         )
 
         return cursor.fetchall()
@@ -125,5 +125,5 @@ def get_charity_info_by_name(name: str):
     conn.close()
     
 if __name__ == "__main__":
-    print(getServicesByCharityName("Bede House"))
-    print(get_charity_info_by_name("Bede House"))
+    print(get_services_by_charity_id(0))
+    print(get_charity_info_by_id(0))
