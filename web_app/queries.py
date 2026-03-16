@@ -31,9 +31,9 @@ def connect() -> psycopg2.extensions.connection:
     except psycopg2.DatabaseError as error:
         print("Failed to connect to PostgreSQL database: %s".format(error))
 
-""" Calulates a square(ish) of given distance from given location.
-    Points at North, South, East, West calculated by geodesic distance.
-    Use these coordinates to filter locations to within this square
+""" Selects charities with locations (appears multiple for multiple locations), 
+that are within euclidean distance of given location and distance. 
+    ordered by distance to location
 """
 def get_locations(location: str, distance: int):
     lat, long = get_coordinates(location)
@@ -41,31 +41,27 @@ def get_locations(location: str, distance: int):
         print(f"Error: No coordinates for location: {location}")
         return []
     else:
-        northLat = geopy.distance.distance(distance).destination((lat, long), bearing=0).latitude
-        southLat = geopy.distance.distance(distance).destination((lat, long), bearing=180).latitude
-        eastLong = geopy.distance.distance(distance).destination((lat, long), bearing=90).longitude
-        westLong = geopy.distance.distance(distance).destination((lat, long), bearing=0).longitude
-
         conn = connect()
-        with conn.cursor() as cursor:
-            cursor.execute("""SELECT charity.name, charity.url, service.description, location.name, phone_num.phone_number, email.email, charity.index
-                            From charity
-                            INNER JOIN service 
-                            ON charity.index = service.index
-                            INNER JOIN phone_num 
-                            ON service.index = phone_num.index and service.service_id = phone_num.service_id
-                            INNER JOIN email
-                            ON  service.index = email.index and service.service_id = email.service_id
-                            INNER JOIN service_location 
-                            ON  service.index = service_location.index and service.service_id = service_location.service_id
-                            INNER JOIN location
-                            ON service_location.id = location.id
-                            WHERE ((cast (location.latitude as double precision)) between %s and %s) and ( (cast(location.longitude as double precision)) between %s and %s);
-                            """, (southLat, northLat, westLong, eastLong))
-            return cursor.fetchall()
-            conn.commit()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute("""
 
-        conn.close()
+                                SELECT * from (
+                                    SELECT distinct charity.index, charity.name, location.name, charity.url, charity.summary, |/((((cast (location.latitude as double precision)) - %s)^2) + (((cast (location.longitude as double precision)) - %s)^2)) as distance
+                                    FROM location
+                                    NATURAL JOIN service_location
+                                    NATURAL JOIN service
+                                    INNER JOIN charity on charity.index = service.index
+                                ) temp
+                                WHERE distance < %s
+                                ORDER BY distance
+                                """, (lat, long, distance))
+                return cursor.fetchall()
+                conn.commit()
+
+            conn.close()
+        except Exception as e:
+            print(f"Error: {e}")
 
 def get_coordinates(location: str):
     try:
@@ -112,7 +108,7 @@ def get_charity_info_by_id(index: str):
             """
                 SELECT charity.url, charity.summary, charity_num.charity_number, charity.name
                 FROM charity 
-                INNER JOIN charity_num
+                LEFT OUTER JOIN charity_num
                 ON charity.index = charity_num.index
                 WHERE charity.index = %s
 
@@ -127,3 +123,5 @@ def get_charity_info_by_id(index: str):
 if __name__ == "__main__":
     print(get_services_by_charity_id(0))
     print(get_charity_info_by_id(0))
+    print("dist")
+    print(get_locations("London", 1000))

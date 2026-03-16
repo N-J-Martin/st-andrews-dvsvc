@@ -9,19 +9,15 @@ def location_filter():
         nearby = queries.get_locations(current_loc, int(current_dist))
         outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> <ul>"""
         for l in nearby:
-            outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=l[6])}';", style="outline: thick inset"><div >
-            <h3>{l[0]}</h3>
-            <a href='{l[1]}'> {l[1]} </a>
+            outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=l[0])}';", style="outline: thick inset"><div >
+            <h3>{l[1]}</h3>
+            <a href='{l[3]}'> {l[3]} </a>
             <br>
             <br>
-            location: {l[3]}
-            <br>
-            phone number: {l[4]}
-            <br>
-            email: {l[5]}
+            location: {l[2]}, distance: {l[5]}
             <br>
             <br>
-            description: {l[2]}
+            summary: {l[4]}
             <br>
 
             </div></li>"""
