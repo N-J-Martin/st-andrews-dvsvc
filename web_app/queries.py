@@ -48,11 +48,11 @@ def get_locations(location: str, distance: int):
                 cursor.execute("""
 
                                 SELECT * from (
-                                    SELECT distinct charity.index, charity.name, location.name, charity.url, charity.summary, |/((((cast (location.latitude as double precision)) - %s)^2) + (((cast (location.longitude as double precision)) - %s)^2)) as distance
+                                   SELECT distinct charity.index, charity.name, location.name, charity.url, charity.summary, |/((((cast (location.latitude as double precision)) - %s)^2) + (((cast (location.longitude as double precision)) - %s)^2)) as distance
                                     FROM location
-                                    NATURAL JOIN service_location
-                                    NATURAL JOIN service
-                                    INNER JOIN charity on charity.index = service.index
+                                    INNER JOIN service_location using (id)
+                                    INNER JOIN service using (index, service_id)
+                                    INNER JOIN charity using (index)
                                 ) temp
                                 WHERE distance < %s
                                 ORDER BY distance
