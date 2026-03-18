@@ -42,6 +42,7 @@ def get_locations(location: str, distance: int):
         return []
     else:
         conn = connect()
+        out = []
         try:
             with conn.cursor() as cursor:
                 cursor.execute("""
@@ -56,10 +57,11 @@ def get_locations(location: str, distance: int):
                                 WHERE distance < %s
                                 ORDER BY distance
                                 """, (lat, long, distance))
-                return cursor.fetchall()
+                out =  cursor.fetchall()
                 conn.commit()
 
             conn.close()
+            return out
         except Exception as e:
             print(f"Error: {e}")
 
@@ -73,34 +75,103 @@ def get_coordinates(location: str):
       print(f"Error: {e}")
       return None, None
 
-
+""" Gets all service ids under a charity"""
 def get_services_by_charity_id(id: int):
     conn = connect()
     with conn.cursor() as cursor:
         cursor.execute(
             """
-                SELECT DISTINCT service.description, location.name, email.email, phone_num.phone_number
-                FROM charity 
-                INNER JOIN service 
-                ON charity.index = service.index
-                INNER JOIN service_location
-                ON service.index = service_location.index and service.service_id = service_location.service_id
-                INNER JOIN location
-                on service_location.id = location.id
-                INNER JOIN email
-                on service.index = email.index and  service.service_id = email .service_id
-                INNER JOIN phone_num
-                on service.index = phone_num.index and service.service_id = phone_num.service_id
-                WHERE charity.index = %s
+                SELECT service_id, description
+                FROM service
+                WHERE index = %s
 
             """,
             (id,)
         )
 
-        return cursor.fetchall()
+        out = cursor.fetchall()
         conn.commit()
     conn.close()
+    return out
 
+""" Gets all emails for a service"""
+def get_emails_by_service(charity_id: int, service_id:int):
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+                SELECT email
+                FROM email
+                WHERE index = %s and service_id = %s
+
+            """,
+            (charity_id, service_id)
+        )
+
+        out = cursor.fetchall()
+        conn.commit()
+    conn.close()
+    return out
+
+""" Gets all phone nums for a service"""
+def get_phone_num_by_service(charity_id: int, service_id:int):
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+                SELECT phone_number
+                FROM phone_num
+                WHERE index = %s and service_id = %s
+
+            """,
+            (charity_id, service_id)
+        )
+
+        out = cursor.fetchall()
+        conn.commit()
+    conn.close()
+    return out
+
+""" Gets all locations for a service"""
+def get_location_by_service(charity_id: int, service_id:int):
+    conn = connect()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+                SELECT name
+                FROM service 
+                INNER JOIN service_location USING (index, service_id)
+                INNER JOIN location USING (id)
+                where index = %s and service_id = %s
+
+            """,
+            (charity_id, service_id)
+        )
+
+        out = cursor.fetchall()
+        conn.commit()
+    conn.close()
+    return out
+
+""" Collates all service info required for a charity"""
+def get_all_service_info_by_charity_id(id: int):
+    service_list = get_services_by_charity_id(id)
+    out = []
+    for s in service_list:
+        phone = get_phone_num_by_service(id, s[0])
+        email = get_emails_by_service(id, s[0])
+        locs = get_location_by_service(id, s[0])
+        full = list(s)
+        phone = [p[0] for p in phone]
+        email = [e[0] for e in email]
+        locs = [l[0] for l in locs]
+        full.append(phone)
+        full.append(email)
+        full.append(locs)
+        out.append(full)
+    return out
+
+""" Gets info just about charity"""
 def get_charity_info_by_id(index: str):
     conn = connect()
     with conn.cursor() as cursor:
@@ -116,12 +187,13 @@ def get_charity_info_by_id(index: str):
             (index,)
         )
 
-        return cursor.fetchall()
+        out = cursor.fetchall()
         conn.commit()
     conn.close()
+    return out
     
 if __name__ == "__main__":
-    print(get_services_by_charity_id(0))
-    print(get_charity_info_by_id(0))
-    print("dist")
-    print(get_locations("London", 1000))
+    print(get_all_service_info_by_charity_id(17))
+    #print(get_charity_info_by_id(0))
+    #print("dist")
+    #print(get_locations("London", 1000))

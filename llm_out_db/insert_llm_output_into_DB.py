@@ -46,6 +46,7 @@ if __name__ == "__main__":
   
     # need to clean up csv file - have to merge corrected with original, so all values are correct. corrected columns only contain corrections where necessary
     df = merge(FILE)
+    print(df.head(10))
     all_locs = []
    
     charity_count = 0

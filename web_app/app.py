@@ -52,21 +52,20 @@ def charity_page(index):
     </div>
     """
 
-    service_info = queries.get_services_by_charity_id(index)
+    service_info = queries.get_all_service_info_by_charity_id(index)
     service_details = "<h2>Services</h2><ul>"
     for s in service_info:
-        print(s)
         service_details = service_details + f"""
                 <li>
                 <div style="outline: thick inset">
-                    description: {s[0]}
+                    description: {s[1]}
                     <br>
                     <br>
-                    location: {s[1]}
+                    locations: {s[4]}
                     <br>
-                    phone number: {s[3]}
+                    phone numbers: {s[2]}
                     <br>
-                    email: {s[2]}
+                    emails: {s[3]}
                     <br>
                     <br>
                 </div>
