@@ -10,7 +10,7 @@ def create_charity_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS charity CASCADE;
         CREATE TABLE charity(
-        index INT PRIMARY KEY,
+        charity_id SERIAL PRIMARY KEY,
         url VARCHAR({MAX_STR_LENGTH}),
         name VARCHAR ({MAX_STR_LENGTH}) NOT NULL,
         summary VARCHAR({MAX_STR_LENGTH}),
@@ -26,10 +26,9 @@ def create_service_table(conn: psycopg2.extensions.connection):
         cursor.execute(f"""
             DROP TABLE IF EXISTS service CASCADE;
             CREATE TABLE service(
-                index INT REFERENCES charity(index),
-                service_id INT,
-                description VARCHAR({MAX_STR_LENGTH}),
-                PRIMARY KEY (index, service_id)
+                service_id SERIAL PRIMARY KEY,
+                charity_id INT REFERENCES charity(charity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+                description VARCHAR({MAX_STR_LENGTH})
             );""")
         
         
@@ -43,10 +42,12 @@ def create_charity_num_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS charity_num CASCADE;
         CREATE TABLE charity_num(
-        index INT REFERENCES charity(index),
+        charity_num_id SERIAL PRIMARY KEY,
+        charity_id INT REFERENCES charity(charity_id) ON UPDATE CASCADE ON DELETE CASCADE,
         charity_number VARCHAR({CHARITY_NUM_LENGTH}) NOT NULL,
         government varchar({MAX_STR_LENGTH}) NOT NULL,
-        PRIMARY KEY (index, charity_number),
+        UNIQUE (charity_id, charity_number),
+        UNIQUE (charity_id, government),
         CHECK (government = 'england_wales' OR government = 'scotland' OR government = 'northern_ireland'),
         CHECK (charity_number ~ '[a-zA-z0-9]{{1,{CHARITY_NUM_LENGTH}}}')
         );""")
@@ -61,11 +62,10 @@ def create_phone_num_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS phone_num CASCADE;
         CREATE TABLE phone_num(
-         index INT,
-         service_id INT,    
+         phone_id SERIAL PRIMARY KEY,
+         service_id INT REFERENCES service(service_id) ON UPDATE CASCADE ON DELETE CASCADE,    
          phone_number VARCHAR({PHONE_LENGTH}),
-         FOREIGN KEY (index, service_id) REFERENCES service(index, service_id),
-         PRIMARY KEY(index, service_id, phone_number),
+         UNIQUE (service_id, phone_number),
          CHECK ( phone_number ~ '\+[0-9]{{0,15}}' )
         );""")
 
@@ -79,11 +79,10 @@ def create_email_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS email CASCADE;
         CREATE TABLE email(
-         index INT,
-         service_id INT,
+         email_id SERIAL PRIMARY KEY,
+         service_id INT REFERENCES service(service_id) ON UPDATE CASCADE ON DELETE CASCADE,
          email VARCHAR({MAX_STR_LENGTH}),
-         FOREIGN KEY (index, service_id) REFERENCES service(index, service_id),
-         PRIMARY KEY(index, service_id, email),
+         UNIQUE(service_id, email),
          CHECK (email ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{{2,}}$')
         );
         """)
@@ -96,7 +95,7 @@ def create_location_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS location CASCADE;
         CREATE TABLE location(
-         id INT PRIMARY KEY ,
+         location_id INT PRIMARY KEY,
          name VARCHAR({MAX_STR_LENGTH}),
          latitude VARCHAR({MAX_STR_LENGTH}),
          longitude VARCHAR({MAX_STR_LENGTH})
@@ -111,14 +110,13 @@ def create_service_location_table( conn: psycopg2.extensions.connection):
         cursor.execute(f"""
         DROP TABLE IF EXISTS service_location CASCADE;
         CREATE TABLE service_location(
-          index INT,
-          service_id INT,
-          id INT REFERENCES location(id),
-          FOREIGN KEY (index, service_id) REFERENCES service(index, service_id),
-          PRIMARY KEY(index, service_id, id)
+          service_id INT REFERENCES service(service_id) ON UPDATE CASCADE ON DELETE CASCADE,
+          location_id INT REFERENCES location(location_id) ON UPDATE CASCADE ON DELETE CASCADE,
+          PRIMARY KEY(service_id, location_id)
         );""")
-
+       
         conn.commit()
+    
     
     LOGGER.info("Attempted to create 'service_location' table")
 

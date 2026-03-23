@@ -46,16 +46,13 @@ if __name__ == "__main__":
   
     # need to clean up csv file - have to merge corrected with original, so all values are correct. corrected columns only contain corrections where necessary
     df = merge(FILE)
-    print(df.head(10))
     all_locs = []
    
-    charity_count = 0
     for row in df.itertuples():
-      service_count = 0
       try:
          # insert charity
          with conn:
-            accessors.insert_charity(conn, charity_count, str(row.url_corrected).strip(), str(row.charity_name_corrected).strip(), str(row.summary_corrected).strip())
+            charity_id = accessors.insert_charity(conn, str(row.url_corrected).strip(), str(row.charity_name_corrected).strip(), str(row.summary_corrected).strip())
             
          
          # insert charity nums
@@ -64,24 +61,23 @@ if __name__ == "__main__":
             if charity_nums[c] is not None and charity_nums[c] != "":
                try:
                   with conn:
-                     accessors.insert_charity_number(conn, charity_count, charity_nums[c].strip(), c.strip())
+                     accessors.insert_charity_number(conn, charity_id, charity_nums[c].strip(), c.strip())
                except Exception as e:
                   print(f"Error: {e}")
 
          # insert service
          services = ast.literal_eval(row.services_corrected)
          for s in services:
-            service_count += 1
             try:
                with conn:
-                  accessors.insert_service(conn, charity_count, service_count, s["description"])
+                  service_id = accessors.insert_service(conn, charity_id, s["description"])
                # insert phone numbers for service
                if 'phone' in s and s['phone']:
                   phone = s['phone'].split(",")
                   for p in phone:
                      try: 
                         with conn:
-                           accessors.insert_phone_num(conn,  charity_count, service_count, standardise_phone_number(p))
+                           accessors.insert_phone_num(conn,  service_id, standardise_phone_number(p))
                      except Exception as e:
                         print(f"Error: {e}")
 
@@ -91,7 +87,7 @@ if __name__ == "__main__":
                   for e in email:
                      try: 
                         with conn:
-                           accessors.insert_email(conn, charity_count, service_count, e.strip())
+                           accessors.insert_email(conn, service_id, e.strip())
                      except Exception as e:
                         print(f"Error: {e}")
 
@@ -111,7 +107,7 @@ if __name__ == "__main__":
                                  accessors.insert_location_no_coords(conn, len(all_locs) -1, str(l).strip())
 
                         with conn:
-                           accessors.insert_service_location(conn, charity_count, service_count, all_locs.index(l))
+                           accessors.insert_service_location(conn, service_id, all_locs.index(l))
 
                   except Exception as e:
                      print(f"Error: {e}")
@@ -122,7 +118,6 @@ if __name__ == "__main__":
       except Exception as e:
          print(f"Error: {e}")
 
-      charity_count+=1
 
       
 
