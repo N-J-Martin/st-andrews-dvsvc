@@ -47,16 +47,17 @@ def get_locations(location: str, distance: int):
             with conn.cursor() as cursor:
                 cursor.execute("""
 
+                                
                                 SELECT * from (
-                                   SELECT distinct charity.charity_id, charity.name, location.name, charity.url, charity.summary, (ST_Distance(ST_MakePoint(%s, %s), ST_MakePoint((cast (location.longitude as double precision)), (cast (location.latitude as double precision))))) as distance
+                                   SELECT distinct charity.charity_id, charity.name, location.name, charity.url, charity.summary, (ST_Distance(ST_SetSRID(ST_MakePoint(%s, %s), 4326), ST_SetSRID(ST_MakePoint((cast (location.longitude as double precision)), (cast (location.latitude as double precision))), 4326), true)) as distance
                                     FROM location
                                     INNER JOIN service_location using (location_id)
                                     INNER JOIN service using (service_id)
                                     INNER JOIN charity using (charity_id)
                                 ) temp
-								 where distance < %s
-                                 ORDER BY distance
-                                """, (lat, long, distance*1000))
+                                 WHERE distance < %s
+                                 ORDER BY distance ASC
+                                """, (long, lat, distance*1000))
                 out =  cursor.fetchall()
                 conn.commit()
 
@@ -105,7 +106,7 @@ def get_emails_by_service(service_id:int):
                 WHERE service_id = %s
 
             """,
-            (charity_id, service_id)
+            (service_id,)
         )
 
         out = cursor.fetchall()
@@ -124,7 +125,7 @@ def get_phone_num_by_service(service_id:int):
                 WHERE service_id = %s
 
             """,
-            (charity_id, service_id)
+            (service_id,)
         )
 
         out = cursor.fetchall()
@@ -145,7 +146,7 @@ def get_location_by_service(service_id:int):
                 where service_id = %s
 
             """,
-            (service_id)
+            (service_id,)
         )
 
         out = cursor.fetchall()
@@ -179,7 +180,7 @@ def get_charity_info_by_id(id: str):
             """
                 SELECT charity.url, charity.summary, charity_num.charity_number, charity.name
                 FROM charity 
-                LEFT OUTER JOIN charity_num USING charity_id
+                LEFT OUTER JOIN charity_num ON charity.charity_id = charity_num.charity_id
                 WHERE charity.charity_id = %s
 
             """,

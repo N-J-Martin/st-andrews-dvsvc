@@ -14,7 +14,7 @@ def location_filter():
             <a href='{l[3]}'> {l[3]} </a>
             <br>
             <br>
-            location: {l[2]}, distance: {l[5]}
+            location: {l[2]}, distance: {l[5]/1000}
             <br>
             <br>
             summary: {l[4]}
