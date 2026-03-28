@@ -66,7 +66,13 @@ if __name__ == "__main__":
                   print(f"Error: {e}")
 
          # insert service
-         services = ast.literal_eval(row.services_corrected)
+         try:
+            services = ast.literal_eval(row.services_corrected)
+         except Exception as e:
+            print(f"Error: {e}")
+            print(f"Incorrect  formatting of row: " + str(row))
+            services = []
+
          for s in services:
             try:
                with conn:
