@@ -76,6 +76,24 @@ def get_coordinates(location: str):
       print(f"Error: {e}")
       return None, None
 
+
+def get_all_charities():
+    conn = connect()
+    out = []
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                            SELECT distinct charity.charity_id, charity.name, charity.url, charity.summary
+                            FROM charity;
+                            """)
+            out =  cursor.fetchall()
+            conn.commit()
+
+        conn.close()
+        return out
+    except Exception as e:
+        print(f"Error: {e}")
+
 """ Gets all service ids under a charity"""
 def get_services_by_charity_id(id: int):
     conn = connect()
