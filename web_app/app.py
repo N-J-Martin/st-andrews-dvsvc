@@ -17,7 +17,7 @@ def location_filter():
             nearby = queries.get_locations("UK", UK_LENGTH)
 
 
-        outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> {'<p>All charities with UK locations</p>' if current_dist > UK_LENGTH else ''}<ul>"""
+        outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> {'<p>All charities with UK locations</p>' if int(current_dist) > UK_LENGTH else ''}<ul>"""
        
         for l in nearby:
             outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=l[0])}';", style="outline: thick inset"><div >
