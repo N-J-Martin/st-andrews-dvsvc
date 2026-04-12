@@ -30,7 +30,7 @@ def merge(file: str):
 
 def convertLocation(loc: str):
    try:
-      conv = geocode(loc, exactly_one=True)
+      conv = geocode(f"{loc}, UK", exactly_one=True)
       if conv is not None:
          return conv.latitude, conv.longitude
       return None, None

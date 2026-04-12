@@ -1,16 +1,38 @@
 from flask import Flask, request, render_template, redirect, url_for
 import queries
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+import geopy.distance
 UK_LENGTH = 1000
+USER_AGENT = "DASAD/0.1"
+DELAY = 1
 app = Flask(__name__)
+geolocator = Nominatim(user_agent=USER_AGENT)
+geocode = RateLimiter(geolocator.geocode, min_delay_seconds=DELAY)
+
+
+def get_coordinates(location: str):
+    try:
+      conv = geocode(f"{location}, UK", exactly_one=True)
+      if conv is not None:
+         return conv.address, conv.latitude, conv.longitude
+      return None, None, None
+    except Exception as e:
+      print(f"Error: {e}")
+      return None, None, None
+
+
 @app.route("/", methods = ['POST','GET'])
 def location_filter():
     if request.method == "POST":
         current_loc = request.form["loc"]
         current_dist = int(request.form["dist"])
-        nearby = queries.get_locations(current_loc, int(current_dist))
+        address, lat, long = get_coordinates(current_loc)
+        
+        nearby = queries.get_locations(lat, long, int(current_dist))
         # expand until either item found or length of UK covered 
         while nearby == [] and current_dist < UK_LENGTH:
-            nearby = queries.get_locations(current_loc, int(current_dist))
+            nearby = queries.get_locations(lat, long, int(current_dist))
             current_dist = current_dist + 50
         
         
@@ -31,7 +53,7 @@ def location_filter():
 
                 </div></li>"""
         else:
-            outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> {'<p>All charities with UK locations</p>' if current_dist > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + current_loc + '</p>'}<ul>"""
+            outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> {'<p>All charities with UK locations</p>' if current_dist > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + address + '</p>'}<ul>"""
 
        
             for l in nearby:

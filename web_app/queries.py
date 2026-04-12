@@ -1,19 +1,14 @@
 import os
 from dotenv import load_dotenv
 import psycopg2
-from geopy.geocoders import Nominatim
-from geopy.extra.rate_limiter import RateLimiter
-import geopy.distance
 load_dotenv()
 POSTGRES_DB = os.environ["POSTGRES_DB"]
 POSTGRES_USER = os.environ["POSTGRES_USER"]
 POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
 DB_HOST = os.environ["DB_HOST"]
 PORT = os.environ["DB_PORT"]
-USER_AGENT = "DASAD/0.1"
-DELAY = 1
-geolocator = Nominatim(user_agent=USER_AGENT)
-geocode = RateLimiter(geolocator.geocode, min_delay_seconds=DELAY)
+
+
 
 def connect() -> psycopg2.extensions.connection:
 
@@ -35,8 +30,7 @@ def connect() -> psycopg2.extensions.connection:
 that are within euclidean distance of given location and distance. 
     ordered by distance to location
 """
-def get_locations(location: str, distance: int):
-    lat, long = get_coordinates(location)
+def get_locations(lat: float, long: float, distance: int):
     if lat is None and long is None:
         print(f"Error: No coordinates for location: {location}")
         return []
@@ -65,17 +59,6 @@ def get_locations(location: str, distance: int):
             return out
         except Exception as e:
             print(f"Error: {e}")
-
-def get_coordinates(location: str):
-    try:
-      conv = geocode(location, exactly_one=True)
-      if conv is not None:
-         return conv.latitude, conv.longitude
-      return None, None
-    except Exception as e:
-      print(f"Error: {e}")
-      return None, None
-
 
 def get_all_charities():
     conn = connect()
