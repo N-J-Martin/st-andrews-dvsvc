@@ -28,18 +28,20 @@ def location_filter():
         current_loc = request.form["loc"]
         current_dist = int(request.form["dist"])
         address, lat, long = get_coordinates(current_loc)
-        
-        nearby = queries.get_locations(lat, long, int(current_dist))
-        # expand until either item found or length of UK covered 
-        while nearby == [] and current_dist < UK_LENGTH:
+        if address is None:
+            nearby = []
+        else:
             nearby = queries.get_locations(lat, long, int(current_dist))
-            current_dist = current_dist + 50
-        
+            # expand until either item found or length of UK covered 
+            while nearby == [] and current_dist < UK_LENGTH:
+                nearby = queries.get_locations(lat, long, int(current_dist))
+                current_dist = current_dist + 50
+            
         
         
         # distance should be 1000, so just search for all with UK charities
         if nearby == []:
-            outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> {'<p>All charities with UK locations</p>' if current_dist > UK_LENGTH else '<p>All charities in database</p>'}<ul>"""
+            outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> <p>Could not find Location. All charities in database</p> <ul>"""
 
             all = queries.get_all_charities()
             for c in all:
