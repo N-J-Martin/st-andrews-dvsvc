@@ -41,7 +41,7 @@ def location_filter():
         
         # distance should be 1000, so just search for all with UK charities
         if nearby == []:
-            outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> <p>Could not find Location. All charities in database</p> <ul>"""
+            outstr = f"""<p>Could not find Location. All charities in database</p> <ul>"""
 
             all = queries.get_all_charities()
             for c in all:
@@ -55,7 +55,7 @@ def location_filter():
 
                 </div></li>"""
         else:
-            outstr = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css')}"> </head> <body> {'<p>All charities with UK locations</p>' if current_dist > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + address + '</p>'}<ul>"""
+            outstr = f""" {'<p>All charities with UK locations</p>' if current_dist > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + address + '</p>'}<ul>"""
 
        
             for l in nearby:
@@ -73,7 +73,7 @@ def location_filter():
                 </div></li>"""
 
 
-        return outstr+"</ul> </body>"
+        return render_template("index.html", result=outstr+"</ul>")
 
     return render_template("index.html")
 
