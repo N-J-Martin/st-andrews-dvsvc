@@ -19,6 +19,9 @@
         <button type="submit">Submit</button>
         
 </form>
-<p>{{current_loc}}</p>
+
+{% if result%}
+  <div>{{result|safe}}</div>
+{% endif %}
 
 </body>
