@@ -6,6 +6,7 @@ import geopy.distance
 UK_LENGTH = 1000
 USER_AGENT = "DASAD/0.1"
 DELAY = 1
+PAGE_LIMIT = 10
 app = Flask(__name__)
 geolocator = Nominatim(user_agent=USER_AGENT)
 geocode = RateLimiter(geolocator.geocode, min_delay_seconds=DELAY)
@@ -41,19 +42,7 @@ def location_filter():
         
         # distance should be 1000, so just search for all with UK charities
         if nearby == []:
-            outstr = f"""<p>Could not find Location. All charities in database</p> <ul>"""
-
-            all = queries.get_all_charities()
-            for c in all:
-                outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=c[0])}';", style="outline: thick inset"><div >
-                <h3>{c[1]}</h3>
-                <a href='{c[2]}'> {c[2]} </a>
-                <br>
-                <br>
-                summary: {c[3]}
-                <br>
-
-                </div></li>"""
+           return redirect(url_for("all_charity_list", page=1))
         else:
             outstr = f""" {'<p>All charities with UK locations</p>' if current_dist > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + address + '</p>'}<ul>"""
 
@@ -77,6 +66,23 @@ def location_filter():
 
     return render_template("index.html")
 
+@app.route("/all/<page>")
+def all_charity_list(page):
+    charity_list = queries.get_all_charities()
+    outstr = f"""<p>Could not find Location. All charities in database</p> <ul>"""
+    page = int(page)
+    for c in charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT]:
+        outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=c[0])}';", style="outline: thick inset"><div >
+        <h3>{c[1]}</h3>
+        <a href='{c[2]}'> {c[2]} </a>
+        <br>
+        <br>
+        summary: {c[3]}
+        <br>
+
+        </div></li>"""
+
+    return outstr
 
 @app.route("/charity/<index>")
 def charity_page(index):
