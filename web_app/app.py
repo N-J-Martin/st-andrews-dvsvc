@@ -82,7 +82,24 @@ def all_charity_list(page):
 
         </div></li>"""
 
-    return outstr
+    outstr += "</ul>"
+    num_pages = int(len(charity_list)/PAGE_LIMIT)
+    if (len(charity_list) % PAGE_LIMIT != 0):
+        num_pages += 1
+    outstr = outstr + page_links(num_pages, page, "all_charity_list")
+    return render_template("index.html", result=outstr)
+
+def page_links(num_pages, curr_page, redirect):
+    out = "<div> <ul class='pagination'>"
+    for i in range(1, num_pages+1):
+        if i == curr_page:
+            out = out + f"""<li><u>{i}</u></li>"""
+        else:
+            out = out + f"""<li><a href={url_for(redirect, page=i)}>{i}</a></li>"""
+    out += "</ul> </div>"
+    return out
+
+
 
 @app.route("/charity/<index>")
 def charity_page(index):
