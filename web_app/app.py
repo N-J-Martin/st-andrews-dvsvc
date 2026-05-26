@@ -53,7 +53,7 @@ def location_filter():
 @app.route("/all/<location>/<distance>/<page>")
 def all_charity_list(page, location="location", distance="distance", current_dist=0): #current_dist to match search_charity_list
     charity_list = queries.get_all_charities()
-    outstr = f"""<p>Could not find Location. All charities in database</p> <ul>"""
+    outstr = f"""<p>Could not find Location. All charities in database</p> <ul class='result'>"""
     page = int(page)
     for c in charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT]:
         outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=c[0])}';", style="outline: thick inset"><div >
@@ -80,7 +80,7 @@ def search_charity_list(page, location, distance, current_dist):
         charity_list = []
     else:
         charity_list = queries.get_locations(lat, long, int(current_dist))
-    outstr = f""" {'<p>All charities with UK locations</p>' if int(current_dist) > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + address + '</p>'}<ul>"""  
+    outstr = f""" {'<p>All charities with UK locations</p>' if int(current_dist) > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + address + '</p>'}<ul class='result'>"""  
 
     page = int(page)
     for c in charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT]:
@@ -89,7 +89,7 @@ def search_charity_list(page, location, distance, current_dist):
                 <a href='{c[3]}'> {c[3]} </a>
                 <br>
                 <br>
-                location: {c[2]}, distance: {c[5]/1000}
+                location: {c[2]}, distance: {(c[5]/1000):.2f}
                 <br>
                 <br>
                 summary: {c[4]}

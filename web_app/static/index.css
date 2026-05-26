@@ -2,6 +2,10 @@ body{
     font-family: system-ui;
 }
 
+.result{
+    list-style: none;
+}
+
 /* From https://www.w3schools.com/css/css3_pagination.asp*/
 .pagination {
   display: flex;
