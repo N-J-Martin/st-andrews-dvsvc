@@ -2,22 +2,21 @@
 </head>
 <body>
 <h1> Enter Location</h1>
-<form method="post">
+<form method="post", action="{{url_for('location_filter')}}">
        location:
        <input type="text" name="loc"
-               placeholder="location"
+               placeholder={{loc}}
                value="{{ request.form['loc'] }}"></input>
        <br>
        <br>
        distance:
         <input type="number" name="dist"
-               placeholder="distance"
+               placeholder={{dist}}
                value="{{ request.form['dist'] }}"></input>
        km
        <br>
        <br>
-        <button type="submit">Submit</button>
-        
+        <button type="submit" >Submit</button>
 </form>
 
 {% if result%}
