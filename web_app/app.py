@@ -23,7 +23,7 @@ def get_coordinates(location: str):
       return None, None, None
 
 
-@app.route("/", methods = ['POST','GET'])
+@app.route("/", methods = ['POST'])
 def location_filter():
     if request.method == "POST":
         current_loc = request.form["loc"]
