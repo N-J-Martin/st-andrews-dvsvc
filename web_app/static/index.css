@@ -6,7 +6,7 @@ body{
     list-style: none;
 }
 
-/* From https://www.w3schools.com/css/css3_pagination.asp*/
+/* Pagination styles from https://www.w3schools.com/css/css3_pagination.asp*/
 .pagination {
   display: flex;
   justify-content: center;
