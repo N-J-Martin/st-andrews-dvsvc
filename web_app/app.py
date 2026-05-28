@@ -27,7 +27,7 @@ def get_coordinates(location: str):
 """
 Takes in postcode and distance from form, and obtains list of charities in that distance, or nearest reasonable distance
 """
-@app.route("/", methods = ['POST'])
+@app.route("/", methods = ['POST', 'GET'])
 def location_filter():
     if request.method == "POST":
         current_loc = request.form["loc"]

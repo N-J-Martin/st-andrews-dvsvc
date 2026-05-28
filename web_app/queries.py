@@ -67,7 +67,8 @@ def get_all_charities():
         with conn.cursor() as cursor:
             cursor.execute("""
                             SELECT distinct charity.charity_id, charity.name, charity.url, charity.summary
-                            FROM charity;
+                            FROM charity
+                            ORDER BY charity.name;
                             """)
             out =  cursor.fetchall()
             conn.commit()

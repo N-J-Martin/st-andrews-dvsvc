@@ -26,6 +26,6 @@ The site can be accessed at `localhost:5000`
 - Show both charities with location in search radius, and nationwide examples (e.g: location is UK, England, Scotland, Wales, None).
 - Introduce a map to show locations
 - Filter by keywords in descriptions, leading to adjusting database backend and queries to allow filtering by other user requirements (accsssibility, service type, who they support etc).
-- Improve displah of information
+- Improve display of information
 
 
