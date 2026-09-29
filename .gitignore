@@ -5,6 +5,11 @@ heuristics/benchmark/pages
 extract_domains.py
 data/
 resource/
+scrapy_env/
+testEnv/
+scriptsEnv/
+appVenv/
+dvsvc_db/backup.sql
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
