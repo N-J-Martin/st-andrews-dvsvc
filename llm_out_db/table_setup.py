@@ -100,7 +100,9 @@ def create_location_table( conn: psycopg2.extensions.connection):
         DROP TABLE IF EXISTS location CASCADE;
         CREATE TABLE location(
          id INT PRIMARY KEY ,
-         name VARCHAR({MAX_STR_LENGTH})
+         name VARCHAR({MAX_STR_LENGTH}),
+         latitude VARCHAR({MAX_STR_LENGTH}),
+         longitude VARCHAR({MAX_STR_LENGTH})
         );""")
 
         conn.commit()

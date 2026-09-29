@@ -2,9 +2,12 @@ import psycopg2
 import pandas as pd
 import phonenumbers
 import ast
-
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
 from llm_setup import get_db_logger, connect, accessors
-FILE = ""
+FILE = "extracted_data.csv"
+USER_AGENT = "DASAD/0.1"
+DELAY = 1
 
 # returns phone number in standardised E164 format
 def standardise_phone_number(x):
@@ -25,9 +28,21 @@ def merge(file: str):
 
     return df
 
+def convertLocation(loc: str):
+   try:
+      conv = geocode(loc, exactly_one=True)
+      if conv is not None:
+         return conv.latitude, conv.longitude
+      return None, None
+   except Exception as e:
+      print(f"Error: {e}")
+      return None, None
+
 if __name__ == "__main__":
     LOGGER = get_db_logger()
     conn = connect.connect()
+    geolocator = Nominatim(user_agent=USER_AGENT)
+    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=DELAY)
   
     # need to clean up csv file - have to merge corrected with original, so all values are correct. corrected columns only contain corrections where necessary
     df = merge(FILE)
@@ -84,8 +99,14 @@ if __name__ == "__main__":
                      for l in s['locations']:
                         if l not in all_locs:
                            all_locs.append(l)
+                           #converts string to latitude/longitude coordinations, with rate limiting
+                           lat, long = convertLocation(l)
+
                            with conn:
-                              accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip())
+                              if lat is not None and long is not None:
+                                 accessors.insert_location(conn, len(all_locs) - 1,  str(l).strip(), lat, long)
+                              else:
+                                 accessors.insert_location_no_coords(conn, len(all_locs) -1, str(l).strip())
 
                         with conn:
                            accessors.insert_service_location(conn, str(row.url_corrected).strip(), service_count, all_locs.index(l))
