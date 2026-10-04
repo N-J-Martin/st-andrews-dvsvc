@@ -33,3 +33,5 @@ body{
   border-radius: 5px; /* add rounded borders */
   background-color:aquamarine ;
 }
+
+#map { height: 100%; }

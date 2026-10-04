@@ -10,7 +10,7 @@ PAGE_LIMIT = 10
 app = Flask(__name__)
 geolocator = Nominatim(user_agent=USER_AGENT)
 geocode = RateLimiter(geolocator.geocode, min_delay_seconds=DELAY)
-
+print("finds file")
 """
 Retrieves coordinates of a given string location/postcode
 """
@@ -180,3 +180,7 @@ def charity_page(index):
         """
     page = page + charity_details + service_details+"</ul> </body>"
     return page
+
+@app.route("/map")
+def map():
+    return render_template("map.html")
