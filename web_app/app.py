@@ -131,7 +131,7 @@ def page_links(num_pages, curr_page, redirect, location, distance, current_dist)
 
 
 """
-Information about charity with that index number deisplayed in own page
+Information about charity with that index number displayed in own page
 """
 @app.route("/charity/<index>")
 def charity_page(index):
@@ -184,3 +184,7 @@ def charity_page(index):
 @app.route("/map")
 def map():
     return render_template("map.html")
+
+@app.route("/mapApi/all",  methods = ['GET'])
+def get_all_charity_info():
+    return queries.get_all_charities()
