@@ -60,6 +60,30 @@ def get_locations(lat: float, long: float, distance: int):
         except Exception as e:
             print(f"Error: {e}")
 
+""" Selects all charities with locations (appears multiple for multiple locations), 
+"""
+def get_all_locations():
+    
+    conn = connect()
+    out = []
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                            SELECT distinct charity.charity_id, charity.name, location.name, location.latitude, location.longitude, charity.url, charity.summary
+                            FROM location
+                            INNER JOIN service_location using (location_id)
+                            INNER JOIN service using (service_id)
+                            INNER JOIN charity using (charity_id)
+                            
+                            """,)
+            out =  cursor.fetchall()
+            conn.commit()
+
+        conn.close()
+        return out
+    except Exception as e:
+        print(f"Error: {e}")
+
 def get_all_charities():
     conn = connect()
     out = []

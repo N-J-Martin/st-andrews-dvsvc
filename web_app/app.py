@@ -182,9 +182,9 @@ def charity_page(index):
     return page
 
 @app.route("/map")
-def map():
+def map_view():
     return render_template("map.html")
 
 @app.route("/mapApi/all",  methods = ['GET'])
 def get_all_charity_info():
-    return queries.get_all_charities()
+    return list(map(lambda x: {"charity_id": x[0], "charity_name": x[1], "location_name": x[2], "latitude": x[3], "longitude": x[4], "url": x[5], "summary": x[6]},  queries.get_all_locations()))
