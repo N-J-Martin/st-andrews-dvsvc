@@ -14,15 +14,16 @@ print("finds file")
 """
 Retrieves coordinates of a given string location/postcode
 """
+@app.route("/convert/<location>", methods = ["GET"])
 def get_coordinates(location: str):
     try:
       conv = geocode(f"{location}, UK", exactly_one=True)
       if conv is not None:
-         return conv.address, conv.latitude, conv.longitude
-      return None, None, None
+         return [conv.address, conv.latitude, conv.longitude]
+      return [None, None, None]
     except Exception as e:
       print(f"Error: {e}")
-      return None, None, None
+      return [None, None, None]
 
 """
 Takes in postcode and distance from form, and obtains list of charities in that distance, or nearest reasonable distance
@@ -181,10 +182,28 @@ def charity_page(index):
     page = page + charity_details + service_details+"</ul> </body>"
     return page
 
-@app.route("/map")
+@app.route("/map", methods = ['POST', 'GET'])
 def map_view():
     return render_template("map.html")
 
 @app.route("/mapApi/all",  methods = ['GET'])
 def get_all_charity_info():
     return list(map(lambda x: {"charity_id": x[0], "charity_name": x[1], "location_name": x[2], "latitude": x[3], "longitude": x[4], "url": x[5], "summary": x[6]},  queries.get_all_locations()))
+
+@app.route("/mapApi/loc", methods = ['POST', 'GET'])
+def get_filtered_locations():
+    if request.method == "POST":
+        current_loc = request.form["loc"]
+        current_dist = int(request.form["dist"])
+        original_dist = current_dist
+        address, lat, long = get_coordinates(current_loc)
+        if address is None:
+            nearby = []
+        else:
+            nearby = queries.get_locations(lat, long, int(current_dist))
+            # expand until either item found or length of UK covered 
+            while nearby == [] and current_dist < UK_LENGTH:
+                nearby = queries.get_locations(lat, long, int(current_dist))
+                current_dist = current_dist + 50
+        
+        return list(map(lambda x: {"charity_id": x[0], "charity_name": x[1], "location_name": x[2],  "url": x[3], "summary": x[4], "distance": x[5], "latitude": x[6], "longitude": x[7]},  nearby))
