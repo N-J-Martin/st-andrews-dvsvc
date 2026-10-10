@@ -63,7 +63,7 @@ function addCharitiesToMap(data){
             charityMarkers.addLayer(m)
             m.bindPopup(`<div onclick="location.href='${SCRIPT_ROOT}/charity/${d.charity_id}';" style="cursor: pointer;">
                 <h3>${d.charity_name}</h3>
-                <a href='${d.url}'> ${d.url} </a>
+                <a href='${d.url}' class="popup-link"> ${d.url} </a>
                 <br>
                 <br>
                 location: ${d.location_name}
