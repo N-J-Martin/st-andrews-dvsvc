@@ -55,11 +55,12 @@ marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
 function addCharitiesToMap(data){
     console.log("updated")
     currentMarkerGroup.clearLayers()
+    let charityMarkers = L.markerClusterGroup();
     for (let d of data) {
         // need to sort data for new filter - not in JSON format
         if (d.latitude && d.longitude) {
-            let m = new L.CircleMarker([d.latitude, d.longitude], {radius:50, color:"#FF0000", fillColor:"#FF0000"})
-            currentMarkerGroup.addLayer(m)
+            let m = new L.CircleMarker([d.latitude, d.longitude], {radius:25, color:"#FF0000", fillColor:"#FF0000"})
+            charityMarkers.addLayer(m)
             m.bindPopup(`<div onclick="location.href='${SCRIPT_ROOT}/charity/${d.charity_id}';" style="cursor: pointer;">
                 <h3>${d.charity_name}</h3>
                 <a href='${d.url}'> ${d.url} </a>
@@ -75,5 +76,6 @@ function addCharitiesToMap(data){
 
         }
     } 
+    currentMarkerGroup.addLayer(charityMarkers)
     map.addLayer(currentMarkerGroup)  
 }
