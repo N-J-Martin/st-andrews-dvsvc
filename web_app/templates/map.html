@@ -10,26 +10,26 @@
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 <script type="text/javascript">
             const allCharitiesURL = {{ url_for("get_all_charity_info")|tojson }}
-            const SCRIPT_ROOT = {{ request.script_root|tojson }}
+            const SCRIPT_ROOT = {{ request.script_root|tojson}}
         </script>
 
 </head>
 <body>
-<a href="{{ url_for('location_filter', location=request.form['loc'], distance=request.form['dist'], current_dist=0, page=1)}}"><button>List View</button></a>
-<form id="locinfo" method="post">
+<a href="{{ url_for('location_filter', loc=loc, dist=dist)}}"><button>List View</button></a>
+<form id="locinfo" method="post", action="{{url_for('map_view')}}">
        Postcode:
        <!--Postcode regex from Gov.UK @ https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/488478/Bulk_Data_Transfer_-_additional_validation_valid_from_12_November_2015.pdf-->
        <!-- Used to prevent injection attacks in this search-->
        <input required type="search" name="loc"
                placeholder={{loc}}
-               value="{{ request.form['loc'] }}"
+               value="{{loc}}"
                pattern="^([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([AZa-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z])))) [0-9][A-Za-z]{2})$"></input>
        <br>
        <br>
        distance:
         <input required type="number" name="dist"
                placeholder={{dist}}
-               value="{{ request.form['dist'] }}"
+               value={{dist}}
                min = 0 
                max = 1000></input>
        km
@@ -39,5 +39,9 @@
 </form>
 
  <div id="map"></div>
+ <script type="text/javascript">
+ const loc="{{loc}}";
+const dist={{dist}};
+</script>
  <script src="{{ url_for('static', filename='exampleMap.js') }}"></script>
 </body>

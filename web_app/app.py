@@ -30,28 +30,35 @@ def get_coordinates(location: str):
 Takes in postcode and distance from form, and obtains list of charities in that distance, or nearest reasonable distance
 """
 @app.route("/", methods = ['POST', 'GET'])
-def location_filter():
+@app.route("/<loc>/<dist>")
+def location_filter(loc="Postcode", dist="Distance"):
+    print(loc)
+    print(dist)
+    if request.method != "POST" and (loc == "Postcode" or dist=="Distance"):
+        return render_template("index.html", loc=loc, dist=dist)
     if request.method == "POST":
         current_loc = request.form["loc"]
         current_dist = int(request.form["dist"])
-        original_dist = current_dist
-        address, lat, long = get_coordinates(current_loc)
-        if address is None:
-            nearby = []
-        else:
+    elif loc != "Postcode" and dist != "Distance":
+        current_loc = loc
+        current_dist = dist
+    original_dist = current_dist
+    address, lat, long = get_coordinates(current_loc)
+    if address is None:
+        nearby = []
+    else:
+        nearby = queries.get_locations(lat, long, int(current_dist))
+        # expand until either item found or length of UK covered 
+        while nearby == [] and current_dist < UK_LENGTH:
             nearby = queries.get_locations(lat, long, int(current_dist))
-            # expand until either item found or length of UK covered 
-            while nearby == [] and current_dist < UK_LENGTH:
-                nearby = queries.get_locations(lat, long, int(current_dist))
-                current_dist = current_dist + 50
-        
-        # distance should be 1000 or not a location, so just search for all UK charities. Paginate search
-        if nearby == []:
-           return redirect(url_for("all_charity_list",location = current_loc, distance=original_dist, page=1))
-        else:
-           return redirect(url_for("search_charity_list",location = current_loc, distance=original_dist, current_dist = current_dist, page=1))
+            current_dist = current_dist + 50
+    
+    # distance should be 1000 or not a location, so just search for all UK charities. Paginate search
+    if nearby == []:
+        return redirect(url_for("all_charity_list",location = current_loc, distance=original_dist, page=1))
+    else:
+        return redirect(url_for("search_charity_list",location = current_loc, distance=original_dist, current_dist = current_dist, page=1))
 
-    return render_template("index.html", loc="Postcode", dist="Distance")
 
 
 """ Paginates all uk search. Access separately, or through search"""
@@ -184,8 +191,14 @@ def charity_page(index):
     return page
 
 """ Show map view """
+@app.route("/map/", methods=['POST'])
 @app.route("/map/<location>/<distance>", methods = ['POST', 'GET'])
 def map_view(location="Postcode", distance="Distance"):
+    if request.method == "POST":
+        location = request.form["loc"]
+        distance = int(request.form["dist"])
+        return redirect(url_for("map_view", location=location, distance=distance))
+
     return render_template("map.html", loc=location, dist=distance)
 
 """Returns list of all charitys for map view"""

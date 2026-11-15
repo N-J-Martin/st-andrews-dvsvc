@@ -4,12 +4,14 @@ var currentMarkerGroup = L.featureGroup()
 currentMarkerGroup.addTo(map)
 var charitiesToShow = []
 
-const form = document.querySelector("#locinfo");
+//const form = document.querySelector("#locinfo");
 
 //Receive form data, retrieve all charities within radius and siaplay as circle markers, convert postcode to coordinates and display as marker, and a circle indicating radius
 async function sendLocation() {
-  const formData = new FormData(form);
-  console.log(formData.get("loc"))
+  const formData = new FormData();
+  formData.append("loc", loc)
+  formData.append("dist", dist)
+  //console.log(formData.get("loc"))
   
   try {
     const response = fetch(`${SCRIPT_ROOT}/mapApi/loc`, {
@@ -20,30 +22,26 @@ async function sendLocation() {
        charitiesToShow = d; 
        addCharitiesToMap(d); 
        // convert postcode to lat-long coordinates
-       fetch(`${SCRIPT_ROOT}/convert/${formData.get("loc")}`).then(resp => resp.json()).then(d => {
+       fetch(`${SCRIPT_ROOT}/convert/${loc}`).then(resp => resp.json()).then(d => {
         // add pointer marker of searched location
         currentMarkerGroup.addLayer(L.marker([d[1], d[2]]));
         // add boundary of search radius
-        const boundary = new L.Circle([d[1], d[2]], {radius: formData.get("dist")*1000, color:"#0000FF", fillOpacity:0.01 });
+        const boundary = new L.Circle([d[1], d[2]], {radius: dist*1000, color:"#0000FF", fillOpacity:0.01 });
         currentMarkerGroup.addLayer(boundary)
         boundary.bringToBack()
         // Recenter map on search radius
-        map.flyToBounds(currentMarkerGroup.getBounds())
-        
+        map.flyToBounds(currentMarkerGroup.getBounds())  
     }); 
-  })
-    
-    
-  } catch (e) {
+  })} catch (e) {
     console.error(e);
   }
 }
 
 // Add listener to form submit button
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  sendLocation();
-});
+//form.addEventListener("submit", (event) => {
+//  event.preventDefault();
+//  sendLocation();
+//});
 
 // Adds a charity marker to map for each service in list. Uses same card as list view
 function addCharitiesToMap(data){
@@ -86,4 +84,13 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // add all charities onto map originally
-fetch(allCharitiesURL).then(resp => resp.json()).then(d => {charitiesToShow = d; addCharitiesToMap(d)})
+//const formData = new FormData(form);
+
+console.log(loc)
+console.log(dist)
+if (loc == "Postcode" || dist == ""){
+  fetch(allCharitiesURL).then(resp => resp.json()).then(d => {charitiesToShow = d; addCharitiesToMap(d)}) 
+} else {
+  sendLocation()
+}
+
