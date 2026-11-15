@@ -88,7 +88,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 console.log(loc)
 console.log(dist)
-if (loc == "Postcode" || dist == ""){
+if (loc == "Postcode" || dist == "Distance"){
   fetch(allCharitiesURL).then(resp => resp.json()).then(d => {charitiesToShow = d; addCharitiesToMap(d)}) 
 } else {
   sendLocation()

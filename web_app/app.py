@@ -64,7 +64,7 @@ def location_filter(loc="Postcode", dist="Distance"):
 """ Paginates all uk search. Access separately, or through search"""
 @app.route("/all/<page>")
 @app.route("/all/<location>/<distance>/<page>")
-def all_charity_list(page, location="location", distance="distance", current_dist=0): #current_dist to match search_charity_list
+def all_charity_list(page, location="Postcode", distance="Distance", current_dist=0): #current_dist to match search_charity_list
     # Have to requery database for each page - see if can avoid this, consider using cookies or session?
     charity_list = queries.get_all_charities()
     outstr = f"""<p>Could not find Location. All charities in database</p> <ul class='result'>"""
@@ -191,15 +191,26 @@ def charity_page(index):
     return page
 
 """ Show map view """
-@app.route("/map/", methods=['POST'])
+
 @app.route("/map/<location>/<distance>", methods = ['POST', 'GET'])
 def map_view(location="Postcode", distance="Distance"):
+    print(request.method)
     if request.method == "POST":
         location = request.form["loc"]
         distance = int(request.form["dist"])
         return redirect(url_for("map_view", location=location, distance=distance))
 
+    print(location, distance)
     return render_template("map.html", loc=location, dist=distance)
+
+@app.route("/map/", methods = ['POST', 'GET'])
+def all_map():
+    if request.method == "POST":
+        location = request.form["loc"]
+        distance = int(request.form["dist"])
+        return redirect(url_for("map_view", location=location, distance=distance))
+    return render_template("map.html", loc="Postcode", dist="Distance")
+
 
 """Returns list of all charitys for map view"""
 @app.route("/mapApi/all",  methods = ['GET'])

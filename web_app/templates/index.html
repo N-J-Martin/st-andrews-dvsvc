@@ -2,6 +2,7 @@
 </head>
 <body>
 <a href="{{ url_for('map_view', location=loc, distance=dist)}}"><button>Map View</button></a>
+<a href="{{ url_for('all_charity_list', page=1)}}"><button>All Charities</button></a>
 <h1> Enter Location</h1>
 <form method="post", action="{{url_for('location_filter')}}">
        Postcode:
