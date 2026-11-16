@@ -18,15 +18,17 @@ async function sendLocation() {
       method: "POST",
       body: formData,
     }).then(resp => resp.json()).then(d => {console.log(d);
+      document.getElementById("extra").innerHTML += `Showing actual search radius of ${d.actual_dist}km`
+
       // adding services in radius to map
-       charitiesToShow = d; 
-       addCharitiesToMap(d); 
+       charitiesToShow = d.charities; 
+       addCharitiesToMap(d.charities); 
        // convert postcode to lat-long coordinates
-       fetch(`${SCRIPT_ROOT}/convert/${loc}`).then(resp => resp.json()).then(d => {
+       fetch(`${SCRIPT_ROOT}/convert/${loc}`).then(resp => resp.json()).then(p => {
         // add pointer marker of searched location
-        currentMarkerGroup.addLayer(L.marker([d[1], d[2]]));
+        currentMarkerGroup.addLayer(L.marker([p[1], p[2]]));
         // add boundary of search radius
-        const boundary = new L.Circle([d[1], d[2]], {radius: dist*1000, color:"#0000FF", fillOpacity:0.01 });
+        const boundary = new L.Circle([p[1], p[2]], {radius: d.actual_dist*1000, color:"#0000FF", fillOpacity:0.01 });
         currentMarkerGroup.addLayer(boundary)
         boundary.bringToBack()
         // Recenter map on search radius

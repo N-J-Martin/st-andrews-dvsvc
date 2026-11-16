@@ -41,7 +41,7 @@ def location_filter(loc="Postcode", dist="Distance"):
         current_dist = int(request.form["dist"])
     elif loc != "Postcode" and dist != "Distance":
         current_loc = loc
-        current_dist = dist
+        current_dist = int(dist)
     original_dist = current_dist
     address, lat, long = get_coordinates(current_loc)
     if address is None:
@@ -50,8 +50,8 @@ def location_filter(loc="Postcode", dist="Distance"):
         nearby = queries.get_locations(lat, long, int(current_dist))
         # expand until either item found or length of UK covered 
         while nearby == [] and current_dist < UK_LENGTH:
-            nearby = queries.get_locations(lat, long, int(current_dist))
             current_dist = current_dist + 50
+            nearby = queries.get_locations(lat, long, int(current_dist))
     
     # distance should be 1000 or not a location, so just search for all UK charities. Paginate search
     if nearby == []:
@@ -231,7 +231,7 @@ def get_filtered_locations():
             nearby = queries.get_locations(lat, long, int(current_dist))
             # expand until either item found or length of UK covered 
             while nearby == [] and current_dist < UK_LENGTH:
-                nearby = queries.get_locations(lat, long, int(current_dist))
                 current_dist = current_dist + 50
+                nearby = queries.get_locations(lat, long, int(current_dist))
         
-        return list(map(lambda x: {"charity_id": x[0], "charity_name": x[1], "location_name": x[2],  "url": x[3], "summary": x[4], "distance": x[5], "latitude": x[6], "longitude": x[7]},  nearby))
+        return {"actual_dist": current_dist, "charities": list(map(lambda x: {"charity_id": x[0], "charity_name": x[1], "location_name": x[2],  "url": x[3], "summary": x[4], "distance": x[5], "latitude": x[6], "longitude": x[7]},  nearby))}

@@ -15,8 +15,10 @@
 
 </head>
 <body>
+<div id=extra>
 <a href="{{ url_for('location_filter', loc=loc, dist=dist)}}"><button>List View</button></a>
 <a href="{{ url_for('all_map')}}"><button>All Charities</button></a>
+</div>
 <form id="locinfo" method="post", action="{{url_for('all_map')}}">
        Postcode:
        <!--Postcode regex from Gov.UK @ https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/488478/Bulk_Data_Transfer_-_additional_validation_valid_from_12_November_2015.pdf-->
