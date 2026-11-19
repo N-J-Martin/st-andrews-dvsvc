@@ -18,6 +18,10 @@ async function sendLocation() {
       method: "POST",
       body: formData,
     }).then(resp => resp.json()).then(d => {console.log(d);
+      if (d.charities.length == 0){
+        window.alert("Not accepted location, redicrecting to main map view")
+        window.location.replace(`${SCRIPT_ROOT}/map/`)
+      }
       document.getElementById("extra").innerHTML += `Showing actual search radius of ${d.actual_dist}km`
 
       // adding services in radius to map
