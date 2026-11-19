@@ -15,6 +15,11 @@
 
 </head>
 <body>
+<button class="esc" onclick="
+  window.open('http://weather.com', '_newtab');
+  window.location.replace('http://google.com');
+">Quick Exit</button>
+</body>
 <div id=extra>
 <a href="{{ url_for('location_filter', loc=loc, dist=dist)}}"><button>List View</button></a>
 <a href="{{ url_for('all_map')}}"><button>All Charities</button></a>

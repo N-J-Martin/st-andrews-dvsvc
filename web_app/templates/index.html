@@ -1,6 +1,11 @@
 <head><link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 <body>
+<button class="esc" onclick="
+  window.open('http://weather.com', '_newtab');
+  window.location.replace('http://google.com');
+">Quick Exit</button>
+</body>
 <a href="{{ url_for('map_view', location=loc, distance=dist)}}"><button>Map View</button></a>
 <a href="{{ url_for('all_charity_list', page=1)}}"><button>All Charities</button></a>
 <h1> Enter Location</h1>
@@ -29,5 +34,3 @@
 {% if result%}
   <div>{{result|safe}}</div>
 {% endif %}
-
-</body>

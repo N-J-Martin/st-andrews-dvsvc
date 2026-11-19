@@ -49,3 +49,8 @@ white;
   border-width: thick;
   border-radius: 10px;
 }
+
+.esc{
+  background-color: red;
+  width:100%
+}
