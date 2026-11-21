@@ -31,6 +31,49 @@
         <button type="submit" >Submit</button>
 </form>
 <!--Appends results to page, only if there is results. |safe, marks the result string as safe (string built in app.py)-->
-{% if result%}
-  <div>{{result|safe}}</div>
+<ul class='result'>
+  {% if dist and dist != "Distance" %}
+  {% for c in charities %}
+    <li onclick="location.href={{url_for('charity_page',index=c[0])}};", class="card"><div>
+                <h3>{{c[1]}}</h3>
+                <a href='{{c[3]}}'> {{c[3]}} </a>
+                <br>
+                <br>
+                {{c[2]}}, {{'%0.2f'|format(c[5]/1000 |float)}}km away
+                <br>
+                <br>
+                {{c[4]}}
+                <br>
+
+                </div>
+    </li>
+  {% endfor %}
+
+
+  {% else %}
+    {% for c in charities %}
+      <li onclick="location.href='{{url_for('charity_page',index=c[0])}}';", class="card"><div >
+              <h3>{{c[1]}}</h3>
+              <a href='{{c[2]}}'> {{c[2]}} </a>
+              <br>
+              <br>
+              {{c[3]}}
+              <br>
+
+              </div>
+      </li>
+  {% endfor %}
 {% endif %}
+</ul>
+{% for p in range(1, num_pages + 1) %}
+<div>
+  <ul class='pagination'>
+{% if p == curr_page %}
+  <li><u>{{p}}</u></li>
+{% else %}
+  <li><a href={url_for(redirect, page=p, location=location, distance=distance, current_dist=current_dist)}>{{p}}</a></li>
+{% endif %}
+</ul> 
+  </div>
+
+{% endfor %}

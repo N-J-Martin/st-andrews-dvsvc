@@ -35,7 +35,7 @@ def location_filter(loc="Postcode", dist="Distance"):
     print(loc)
     print(dist)
     if request.method != "POST" and (loc == "Postcode" or dist=="Distance"):
-        return render_template("index.html", loc=loc, dist=dist)
+        return redirect(url_for("all_charity_list", page=1))
     if request.method == "POST":
         current_loc = request.form["loc"]
         current_dist = int(request.form["dist"])
@@ -65,30 +65,32 @@ def location_filter(loc="Postcode", dist="Distance"):
 @app.route("/all/<page>")
 @app.route("/all/<location>/<distance>/<page>")
 def all_charity_list(page, location="Postcode", distance="Distance", current_dist=0): #current_dist to match search_charity_list
+    print("here")
     # Have to requery database for each page - see if can avoid this, consider using cookies or session?
     charity_list = queries.get_all_charities()
-    outstr = f"""<p>Could not find Location. All charities in database</p> <ul class='result'>"""
+    #outstr = f"""<p>Could not find Location. All charities in database</p> <ul class='result'>"""
     page = int(page)
     # list all charities within given range for that page, calculated from current length and the page limit (number of charities per page)
-    for c in charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT]:
-        outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=c[0])}';", class="card"><div >
-        <h3>{c[1]}</h3>
-        <a href='{c[2]}'> {c[2]} </a>
-        <br>
-        <br>
-        {c[3]}
-        <br>
+    #for c in charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT]:
+    #    outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=c[0])}';", class="card"><div >
+    #    <h3>{c[1]}</h3>
+    #    <a href='{c[2]}'> {c[2]} </a>
+    #    <br>
+    #    <br>
+    #    {c[3]}
+    #    <br>
 
-        </div></li>"""
+    #    </div></li>"""
 
-    outstr += "</ul>"
+    #outstr += "</ul>"
 
     # build page navigation 
-    num_pages = int(len(charity_list)/PAGE_LIMIT)
-    if (len(charity_list) % PAGE_LIMIT != 0):
-        num_pages += 1
-    outstr = outstr + page_links(num_pages, page, "all_charity_list", location, distance, current_dist)
-    return render_template("index.html", result=outstr, loc=location, dist=distance)
+    #num_pages = int(len(charity_list)/PAGE_LIMIT)
+    #if (len(charity_list) % PAGE_LIMIT != 0):
+    #    num_pages += 1
+    #outstr = outstr + page_links(num_pages, page, "all_charity_list", location, distance, current_dist)
+    print(int(len(charity_list)/PAGE_LIMIT))
+    return render_template("index.html", charities=charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT], num_pages=int(len(charity_list)/PAGE_LIMIT), curr_page=page, loc=location, dist=distance)
 
 """ Paginates search result for location and distance"""
 @app.route("/<location>/<distance>/<current_dist>/<page>")
@@ -99,45 +101,48 @@ def search_charity_list(page, location, distance, current_dist):
         charity_list = []
     else:
         charity_list = queries.get_locations(lat, long, int(current_dist))
-    outstr = f""" {'<p>All charities with UK locations</p>' if int(current_dist) > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + address + '</p>'}<ul class='result'>"""  
+    #outstr = f""" {'<p>All charities with UK locations</p>' if int(current_dist) > UK_LENGTH else '<p>All charities within ' + str(current_dist) + ' km of ' + address + '</p>'}<ul class='result'>"""  
 
     page = int(page)
     # list all charities within given range for that page, calculated from current length and the page limit (number of charities per page)
-    for c in charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT]:
-        outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=c[0])}';", class="card"><div >
-                <h3>{c[1]}</h3>
-                <a href='{c[3]}'> {c[3]} </a>
-                <br>
-                <br>
-                {c[2]}, {(c[5]/1000):.2f}km away
-                <br>
-                <br>
-                {c[4]}
-                <br>
+    
+    #for c in charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT]:
+    #    outstr = outstr + f"""<li onclick="location.href='{url_for('charity_page',index=c[0])}';", class="card"><div >
+            #    <h3>{c[1]}</h3>
+    #            <a href='{c[3]}'> {c[3]} </a>
+    #            <br>
+    #            <br>
+    #            {c[2]}, {(c[5]/1000):.2f}km away
+    #            <br>
+    #            <br>
+    #            {c[4]}
+    #            <br>
+#
+ #               </div></li>
 
-                </div></li>"""
-
-    outstr += "</ul>"
+    #outstr += "</ul>"
     # build page navigation 
-    num_pages = int(len(charity_list)/PAGE_LIMIT)
-    if (len(charity_list) % PAGE_LIMIT != 0):
-        num_pages += 1
-    outstr = outstr + page_links(num_pages, page, "search_charity_list", location, distance, current_dist)
-    return render_template("index.html", result=outstr, loc=location, dist=distance)
+    #num_pages = int(len(charity_list)/PAGE_LIMIT)
+    #if (len(charity_list) % PAGE_LIMIT != 0):
+    #    num_pages += 1
+    #outstr = outstr + page_links(num_pages, page, "search_charity_list", location, distance, current_dist)
+
+    return render_template("index.html", charities=charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT], num_pages=int(len(charity_list)/PAGE_LIMIT), curr_page=page, loc=location, dist=distance)
 
 """
 Page navigation at bottom of page, each button links to that number page
+"""
 """
 def page_links(num_pages, curr_page, redirect, location, distance, current_dist):
     out = "<div> <ul class='pagination'>"
     for i in range(1, num_pages+1):
         if i == curr_page:
-            out = out + f"""<li><u>{i}</u></li>"""
-        else:
-            out = out + f"""<li><a href={url_for(redirect, page=i, location=location, distance=distance, current_dist=current_dist)}>{i}</a></li>"""
-    out += "</ul> </div>"
-    return out
-
+            out = out + #<li><u>{i}</u></li>
+       else:
+            out = out + f#<li><a href={url_for(redirect, page=i, location=location, distance=distance, current_dist=current_dist)}>{i}</a></li>
+"""
+    #out += "</ul> </div>"
+    #return out
 
 """
 Information about charity with that index number displayed in own page
