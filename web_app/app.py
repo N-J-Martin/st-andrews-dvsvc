@@ -149,51 +149,46 @@ Information about charity with that index number displayed in own page
 """
 @app.route("/charity/<index>")
 def charity_page(index):
+    """
     # link in stylesheet - currently builds from scratch here, use template instead?
-    page = f"""<head><link rel="stylesheet" href="{ url_for('static', filename='index.css') }">
-</head>
-<body> 
-"""
+    page = f<head><link rel="stylesheet" href="{ url_for('static', filename='index.css') }">
+    #</head>
+    #<body> 
+    """
     # get and display information about charity in general.
     charity_info = queries.get_charity_info_by_id(index)
     if charity_info == []:
-        return "<h1>Unknown Charity</h1>"
+        return render_template("charity.html", charity_name="Unknown Charity", url="", summary="", charity_num="", service_list=[] )
     charity_info = charity_info[0]
-    charity_details = f"""
-    <h1>{charity_info[3]}</h1>
-    <div>
-        <a href='{charity_info[0]}'> {charity_info[0]} </a>
-        <br>
-        <br>
-        {charity_info[1]}
-        <br>
-        <br>
-        Charity Number: {charity_info[2]}
-    </div>
-    """
+    
     # Get and display information about each service charity provides
     service_info = queries.get_all_service_info_by_charity_id(index)
+    """
     service_details = "<h2>Services</h2><ul class=result>"
+
     for s in service_info:
         service_details = service_details + f"""
-                <li>
-                <div class="card">
-                    {s[1]}
-                    <br>
-                    <br>
-                    {",".join(s[4])}
-                    <br>
-                    {",".join(s[2])}
-                    <br>
-                    {",".join(s[3])}
-                    <br>
-                    <br>
-                </div>
-                <br>
-                </li>
-        """
-    page = page + charity_details + service_details+"</ul> </body>"
-    return page
+       #         <li>
+        #        <div class="card">
+        #            {s[1]}
+        #            <br>
+        #            <br>
+         #           {",".join(s[4])}
+         #           <br>
+         #           {",".join(s[2])}
+         #           <br>
+         #           {",".join(s[3])}
+         #           <br>
+         #           <br>
+         #       </div>
+         #       <br>
+         #       </li>
+    """
+    """
+    #page = page + charity_details + service_details+"</ul> </body>"
+    #return page
+
+    return render_template("charity.html", charity_name=charity_info[3], url=charity_info[0], summary=charity_info[1], charity_num=charity_info[2], service_list=service_info)
 
 """ Show map view """
 

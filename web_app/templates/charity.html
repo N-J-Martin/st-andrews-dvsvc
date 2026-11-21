@@ -1,0 +1,39 @@
+<head><link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
+</head>
+<body> 
+
+<h1>{{charity_name}}</h1>
+
+<div>
+        <a href='{{url}}'> {{url}} </a>
+        <br>
+        <br>
+        {{summary}}
+        <br>
+        <br>
+        Charity Number: {{charity_num}}
+</div>
+
+<h2>Services</h2>
+<ul class=result>
+
+    {% for s in service_list %}
+        <li>
+                <div class="card">
+                    {{s[1]}}
+                    <br>
+                    <br>
+                    {{",".join(s[4])}}
+                    <br>
+                    {{",".join(s[2])}}
+                    <br>
+                    {{",".join(s[3])}}
+                    <br>
+                    <br>
+                </div>
+                <br>
+                </li>
+    {% endfor %}
+</ul>
+
+</body>
