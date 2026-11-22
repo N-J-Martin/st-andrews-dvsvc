@@ -5,7 +5,7 @@
   window.open('http://google.com', '_newtab');
   window.location.replace('http://google.com');
 ">Quick Exit</button>
-</body>
+
 <a href="{{ url_for('map_view', location=loc, distance=dist)}}"><button>Map View</button></a>
 <a href="{{ url_for('all_charity_list', page=1)}}"><button>All Charities</button></a>
 <h1> Enter Location</h1>
@@ -65,15 +65,21 @@
   {% endfor %}
 {% endif %}
 </ul>
+
+<div style="justify-content: center; margin: auto;">
 {% for p in range(1, num_pages + 1) %}
-<div>
   <ul class='pagination'>
 {% if p == curr_page %}
   <li><u>{{p}}</u></li>
 {% else %}
-  <li><a href={url_for(redirect, page=p, location=location, distance=distance, current_dist=current_dist)}>{{p}}</a></li>
+    {% if func == "search_charity_list" %}
+      <li><a href={{url_for(func, page=p, location=loc, distance=dist, current_dist=current_dist)}}>{{p}}</a></li>
+    {% else %}
+      <li><a href={{url_for(func, page=p)}}>{{p}}</a></li>
+    {% endif %}
+
 {% endif %}
 </ul> 
-  </div>
-
 {% endfor %}
+  </div>
+</body>

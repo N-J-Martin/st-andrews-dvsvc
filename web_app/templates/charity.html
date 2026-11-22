@@ -1,7 +1,10 @@
 <head><link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
 </head>
 <body> 
-
+<button class="esc" onclick="
+  window.open('http://google.com', '_newtab');
+  window.location.replace('http://google.com');
+">Quick Exit</button>
 <h1>{{charity_name}}</h1>
 
 <div>
