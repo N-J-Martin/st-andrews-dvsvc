@@ -8,12 +8,10 @@ body{
 
 /* Pagination styles from https://www.w3schools.com/css/css3_pagination.asp*/
 .pagination {
-  margin: auto;
-  display: inline-flex;
+  display: flex;
   justify-content: center;
   list-style: none; /* remove list bullets */
   padding: 0px;
-  flex-wrap: wrap;
 }
 
 .pagination li a {

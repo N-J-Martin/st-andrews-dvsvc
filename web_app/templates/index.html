@@ -66,9 +66,9 @@
 {% endif %}
 </ul>
 
-<div style="justify-content: center; margin: auto;">
-{% for p in range(1, num_pages + 1) %}
-  <ul class='pagination'>
+<div>
+<ul class='pagination'>
+  {% for p in range(1, num_pages + 1) %}
 {% if p == curr_page %}
   <li><u>{{p}}</u></li>
 {% else %}
@@ -79,7 +79,8 @@
     {% endif %}
 
 {% endif %}
-</ul> 
+
 {% endfor %}
+</ul> 
   </div>
 </body>
