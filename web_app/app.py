@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, flash
 import queries
 from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
@@ -55,7 +55,7 @@ def location_filter(loc="Postcode", dist="Distance"):
     
     # distance should be 1000 or not a location, so just search for all UK charities. Paginate search
     if nearby == []:
-        return redirect(url_for("all_charity_list",location = current_loc, distance=original_dist, page=1))
+        return redirect(url_for("all_charity_list", page=1, err="True"))
     else:
         return redirect(url_for("search_charity_list",location = current_loc, distance=original_dist, current_dist = current_dist, page=1))
 
@@ -63,15 +63,15 @@ def location_filter(loc="Postcode", dist="Distance"):
 
 """ Paginates all uk search. Access separately, or through search"""
 @app.route("/all/<page>")
-@app.route("/all/<location>/<distance>/<page>")
-def all_charity_list(page, location="Postcode", distance="Distance", current_dist=0): #current_dist to match search_charity_list
-    print("here")
+@app.route("/all/<page>/<err>")
+def all_charity_list(page, location="Postcode", distance="Distance", current_dist=0, err="False"): #current_dist to match search_charity_list
+    print(err)
     # Have to requery database for each page - see if can avoid this, consider using cookies or session?
     charity_list = queries.get_all_charities()
     page = int(page)
     # list all charities within given range for that page, calculated from current length and the page limit (number of charities per page)
     print(int(len(charity_list)/PAGE_LIMIT))
-    return render_template("index.html", charities=charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT], num_pages=int(len(charity_list)/PAGE_LIMIT), curr_page=page, loc=location, dist=distance, func="all_charity_list")
+    return render_template("index.html", charities=charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT], num_pages=int(len(charity_list)/PAGE_LIMIT), curr_page=page, loc=location, dist=distance, func="all_charity_list", err=err)
 
 """ Paginates search result for location and distance"""
 @app.route("/<location>/<distance>/<current_dist>/<page>")
@@ -82,9 +82,13 @@ def search_charity_list(page, location, distance, current_dist):
         charity_list = []
     else:
         charity_list = queries.get_locations(lat, long, int(current_dist))
+
+    if charity_list == []:
+        return redirect(url_for("all_charity_list", page=1, err="True"))
+
     page = int(page)
     # list all charities within given range for that page, calculated from current length and the page limit (number of charities per page)
-    return render_template("index.html", charities=charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT], num_pages=int(len(charity_list)/PAGE_LIMIT), curr_page=page, loc=location, dist=distance, current_dist= current_dist, func="search_charity_list")
+    return render_template("index.html", charities=charity_list[(page-1)*PAGE_LIMIT: (page)*PAGE_LIMIT], num_pages=int(len(charity_list)/PAGE_LIMIT), curr_page=page, loc=location, dist=distance, current_dist= current_dist, func="search_charity_list", err="False")
 
 
 """

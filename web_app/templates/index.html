@@ -8,6 +8,11 @@
 
 <a href="{{ url_for('map_view', location=loc, distance=dist)}}"><button>Map View</button></a>
 <a href="{{ url_for('all_charity_list', page=1)}}"><button>All Charities</button></a>
+{{err}}
+{% if err=="True" %}
+<script>alert("Not accepted location, redicrecting to main list view")</script>
+{% endif %}
+
 <h1> Enter Location</h1>
 <form method="post", action="{{url_for('location_filter')}}">
        Postcode:
@@ -32,17 +37,17 @@
 </form>
 <!--Appends results to page, only if there is results. |safe, marks the result string as safe (string built in app.py)-->
 <ul class='result'>
-  {% if dist and dist != "Distance" %}
+  {% if err == "False" and dist and dist != "Distance" %}
   {% for c in charities %}
     <li onclick="location.href={{url_for('charity_page',index=c[0])}};", class="card"><div>
                 <h3>{{c[1]}}</h3>
                 <a href='{{c[3]}}'> {{c[3]}} </a>
                 <br>
                 <br>
-                {{c[2]}}, {{'%0.2f'|format(c[5]/1000 |float)}}km away
+               {{c[2]}}, {{'%0.2f'|format(c[5]/1000 |float)}}km away
                 <br>
                 <br>
-                {{c[4]}}
+               {{c[4]}}
                 <br>
 
                 </div>
